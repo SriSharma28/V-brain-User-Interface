@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V-Brain — Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   V-BRAIN — LIGHT DESIGN SYSTEM
+   Light surfaces + selective teal-to-green gradient accents
+   ========================================================================== */
+:root{
+  --teal-black:#021E24;--teal-deep:#03272E;--teal-dark:#00363D;--teal-mid:#0F515C;
+  --teal:#0C7878;--accent:#00A189;--green-light:#A9FDAC;--green-accent:#00E08E;
+  --grey:#939196;--offwhite:#F7F3F5;
+  /* Light palette */
+  --bg:#F9FAFB;--surface:#FFFFFF;--surface-2:#F3F5F7;--surface-3:#EDF0F3;
+  --border:#E2E6EB;--border-light:#EEF1F4;
+  --text:#1A2B33;--text-2:#4A5C68;--text-3:#7A8D99;--text-4:#A3B1BC;
+  /* Gradients */
+  --grad-hero:linear-gradient(135deg,#00363D 0%,#0F515C 40%,#0C7878 70%,#00A189 100%);
+  --grad-accent:linear-gradient(135deg,var(--teal-mid),var(--accent),var(--green-light));
+  --grad-card:linear-gradient(160deg,rgba(15,81,92,.03) 0%,rgba(0,161,137,.015) 100%);
+  --grad-bar:linear-gradient(90deg,var(--teal-mid),var(--accent),var(--green-light));
+  --grad-subtle:linear-gradient(135deg,rgba(0,54,61,.04),rgba(0,161,137,.02));
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;
+  --shadow-sm:0 1px 3px rgba(0,54,61,.06);--shadow-md:0 4px 16px rgba(0,54,61,.08);--shadow-lg:0 12px 40px rgba(0,54,61,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.screen{display:none;animation:fadeIn .3s ease;min-height:100vh}.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+@keyframes pulse{0%,100%{box-shadow:0 0 12px rgba(169,253,172,.6)}50%{box-shadow:0 0 4px rgba(169,253,172,.3)}}
+
+/* NAV — gradient header bar */
+.topnav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:13px 28px;background:var(--grad-hero);border-bottom:none;box-shadow:0 2px 20px rgba(0,54,61,.15)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700;letter-spacing:-.02em;cursor:pointer;color:#fff}
+.topnav-logo .v{color:var(--green-light)}
+.brain-dot{width:8px;height:8px;border-radius:50%;background:var(--green-light);animation:pulse 2.5s infinite}
+.topnav-right{display:flex;align-items:center;gap:14px}
+.notif-btn{position:relative;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,.7);transition:all .2s}
+.notif-btn:hover{border-color:var(--green-light);color:var(--green-light);background:rgba(255,255,255,.12)}
+.notif-badge{position:absolute;top:-2px;right:-2px;width:16px;height:16px;border-radius:50%;background:var(--green-accent);color:var(--teal-black);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--green-light),var(--accent));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--teal-black);cursor:pointer}
+
+/* LAYOUT */
+.shell{max-width:1120px;margin:0 auto;padding:28px 28px 60px}
+.section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--text-4);margin-bottom:14px}
+
+/* SEARCH */
+.dash-topbar{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.search-bar{flex:1;display:flex;align-items:center;gap:10px;padding:12px 18px;background:var(--surface);border:1px solid var(--border);border-radius:40px;transition:all .2s;box-shadow:var(--shadow-sm)}
+.search-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,161,137,.1)}
+.search-bar svg{color:var(--text-4);flex-shrink:0}
+.search-bar input{flex:1;border:none;outline:none;background:0 0;font-family:inherit;font-size:14px;color:var(--text)}
+.search-bar input::placeholder{color:var(--text-4)}
+.icon-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);transition:all .2s;box-shadow:var(--shadow-sm);position:relative}
+.icon-btn:hover{border-color:var(--accent);color:var(--teal-mid);background:var(--surface)}
+.add-btn{padding:0 18px;gap:6px;border-radius:40px;background:var(--grad-hero);border:none;color:#fff;font-weight:600;font-size:14px;display:flex;align-items:center;justify-content:center;height:42px;cursor:pointer;transition:all .2s;box-shadow:0 2px 10px rgba(0,54,61,.2)}
+.add-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,54,61,.25)}
+
+/* PROJECT CARDS */
+.p-card{display:flex;align-items:flex-start;gap:16px;padding:20px 24px;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-lg);margin-bottom:10px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
+.p-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 3px 3px 0;background:var(--grad-bar);opacity:0;transition:opacity .25s}
+.p-card:hover{border-color:var(--border);box-shadow:var(--shadow-md);transform:translateX(4px)}
+.p-card:hover::before{opacity:1}
+.p-card:hover .p-arrow{color:var(--accent);transform:translateX(3px)}
+.p-card.archived{opacity:.6}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.badge-active{background:rgba(0,161,137,.08);color:var(--accent)}
+.badge-winding{background:rgba(217,163,21,.08);color:#B8860B}
+.badge-flagged{background:rgba(220,80,80,.08);color:#C0392B}
+.badge-completed{background:rgba(0,54,61,.06);color:var(--text-3)}
+.badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.p-info{flex:1;min-width:0}
+.p-name{font-size:16px;font-weight:600;letter-spacing:-.01em;margin-bottom:5px;color:var(--text)}
+.p-meta{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--text-3);margin-bottom:7px}
+.p-meta b{color:var(--text-2);font-weight:500}
+.p-desc{font-size:13px;line-height:1.55;color:var(--text-4);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.p-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}
+.p-updated{font-size:10px;color:var(--text-4)}
+.p-arrow{color:var(--text-4);transition:all .25s}
+
+/* SUITE */
+.suite-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:32px}
+.suite-tile{aspect-ratio:1.4;border-radius:var(--r-lg);border:1px solid var(--border-light);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:all .3s;position:relative;box-shadow:var(--shadow-sm)}
+.suite-tile.on{border-color:var(--accent);background:linear-gradient(160deg,rgba(0,161,137,.04),rgba(169,253,172,.02))}
+.suite-tile.on:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.suite-tile.off{opacity:.4;pointer-events:none}
+.s-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.suite-tile.on .s-icon{background:rgba(0,161,137,.1);color:var(--accent)}
+.suite-tile.off .s-icon{background:var(--surface-3);color:var(--text-4)}
+.s-name{font-size:13px;font-weight:600}
+.suite-tile.on .s-name{color:var(--teal-mid)}
+.suite-tile.off .s-name{color:var(--text-3)}
+.s-badge{position:absolute;top:10px;right:10px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:10px;background:var(--surface-3);color:var(--text-4)}
+
+/* BACK BTN + HEADERS */
+.back-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);transition:all .2s;flex-shrink:0}
+.back-btn:hover{border-color:var(--accent);color:var(--accent)}
+.hdr{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.hdr-title{font-size:24px;font-weight:700;letter-spacing:-.03em;color:var(--text)}
+.hdr-sub{font-size:14px;color:var(--text-3);margin-bottom:24px;padding-left:50px}
+
+/* TABS */
+.tab-bar{display:flex;gap:4px;padding:4px;background:var(--surface-2);border-radius:40px;border:1px solid var(--border-light);margin-bottom:28px;overflow-x:auto}
+.tab{padding:10px 20px;border-radius:36px;font-size:13px;font-weight:500;color:var(--text-3);cursor:pointer;white-space:nowrap;transition:all .2s}
+.tab:hover{color:var(--text);background:var(--surface)}
+.tab.on{background:var(--surface);color:var(--teal-mid);font-weight:600;box-shadow:var(--shadow-sm)}
+.tc{display:none;animation:slideUp .3s ease}.tc.on{display:block}
+
+/* TIMELINE */
+.tl-filters{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.chip{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);cursor:pointer;transition:all .2s}
+.chip:hover{border-color:var(--accent);color:var(--teal-mid)}
+.chip.on{border-color:var(--accent);color:var(--surface);background:var(--teal-mid)}
+.tl-item{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--border-light)}
+.tl-date{width:70px;flex-shrink:0;font-size:11px;color:var(--text-4);padding-top:3px;text-align:right}
+.tl-dot-col{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.tl-dot{width:10px;height:10px;border-radius:50%;margin-top:5px}
+.tl-line{width:1px;flex:1;background:var(--border-light);margin-top:6px}
+.dot-decision{background:var(--accent);box-shadow:0 0 6px rgba(0,161,137,.3)}
+.dot-milestone{background:#3B82F6;box-shadow:0 0 6px rgba(59,130,246,.3)}
+.dot-risk{background:#EF4444;box-shadow:0 0 6px rgba(239,68,68,.3)}
+.dot-update{background:var(--text-4)}
+.dot-personnel{background:#8B5CF6;box-shadow:0 0 6px rgba(139,92,246,.3)}
+.tl-body{flex:1;min-width:0}
+.tl-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.tag-decision{background:rgba(0,161,137,.08);color:var(--accent)}
+.tag-milestone{background:rgba(59,130,246,.08);color:#3B82F6}
+.tag-risk{background:rgba(239,68,68,.08);color:#EF4444}
+.tag-update{background:var(--surface-3);color:var(--text-3)}
+.tag-personnel{background:rgba(139,92,246,.08);color:#8B5CF6}
+.tl-title{font-size:14px;font-weight:600;color:var(--text)}
+.tl-desc{font-size:13px;line-height:1.5;color:var(--text-2)}
+.tl-source{font-size:11px;color:var(--text-4);margin-top:6px;font-style:italic}
+
+/* BRIEFING */
+.brief{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-lg);margin-bottom:12px;overflow:hidden;transition:all .2s;box-shadow:var(--shadow-sm)}
+.brief:hover{border-color:var(--border)}
+.brief-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;cursor:pointer}
+.brief-left{display:flex;align-items:center;gap:12px}
+.brief-num{width:28px;height:28px;border-radius:50%;background:var(--grad-hero);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.brief-t{font-size:15px;font-weight:600;color:var(--text)}
+.brief-st{font-size:12px;color:var(--text-4);margin-top:1px}
+.brief-chev{color:var(--text-4);transition:transform .25s}
+.brief.open .brief-chev{transform:rotate(180deg)}
+.brief-bd{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.brief.open .brief-bd{max-height:600px}
+.brief-inner{padding:0 22px 22px}
+
+/* SKELETON */
+.sk{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--surface-3) 0%,var(--border-light) 50%,var(--surface-3) 100%);background-size:400px 12px;animation:shimmer 1.8s infinite linear;margin-bottom:10px}
+.sk:last-child{margin-bottom:0}
+.sk.w100{width:100%}.sk.w90{width:90%}.sk.w80{width:80%}.sk.w70{width:70%}.sk.w60{width:60%}.sk.w40{width:40%}
+.sk.h20{height:20px;margin-bottom:14px}
+
+/* HEALTH */
+.h-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.h-card{padding:20px;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+.h-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-4);margin-bottom:14px}
+.h-bar-t{height:6px;border-radius:3px;background:var(--surface-3);margin-bottom:8px;overflow:hidden}
+.h-bar-f{height:100%;border-radius:3px}
+.h-val{font-size:24px;font-weight:700;letter-spacing:-.03em}
+.h-sub{font-size:12px;color:var(--text-3);margin-top:2px}
+.h-detail{margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light)}
+.h-drow{display:flex;justify-content:space-between;padding:5px 0;font-size:12px}
+.h-dl{color:var(--text-4)}.h-dv{color:var(--text-2);font-weight:500}
+
+/* STAKEHOLDERS */
+.st-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.st-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-4);margin-bottom:12px}
+.st-card{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-md);margin-bottom:8px}
+.av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--teal-mid),var(--teal));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;color:#fff}
+.av-accent{background:linear-gradient(135deg,var(--accent),var(--green-accent))!important}
+.av-blue{background:linear-gradient(135deg,#4a6fa5,#3B82F6)!important}
+.st-name{font-size:13px;font-weight:600;color:var(--text)}
+.st-role{font-size:11px;color:var(--text-4)}
+
+/* V-ALLOCATE */
+.al-card{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 18px 26px;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-lg);margin-bottom:10px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
+.al-card:hover{border-color:var(--border);box-shadow:var(--shadow-md);transform:translateX(4px)}
+.al-bar{width:3px;height:100%;position:absolute;left:0;top:0;background:var(--grad-bar)}
+.al-name{font-size:15px;font-weight:600;color:var(--text)}
+.al-needs{font-size:12px;color:var(--text-3);margin-top:2px}
+.al-right{display:flex;align-items:center;gap:14px}
+.al-deadline{font-size:11px;font-weight:600;color:var(--text-3)}
+.al-count{padding:4px 12px;border-radius:20px;background:rgba(239,68,68,.08);color:#EF4444;font-size:11px;font-weight:700}
+
+/* FORECAST */
+.f-toggle{display:flex;gap:2px;padding:3px;background:var(--surface-2);border:1px solid var(--border-light);border-radius:30px}
+.f-btn{padding:7px 16px;border-radius:26px;font-size:11px;font-weight:600;color:var(--text-3);cursor:pointer;transition:all .2s}
+.f-btn:hover{color:var(--text)}.f-btn.on{background:var(--surface);color:var(--teal-mid);box-shadow:var(--shadow-sm)}
+.f-view{display:none;animation:slideUp .3s ease}.f-view.on{display:block}
+.cap-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.cap-lbl{width:80px;font-size:11px;color:var(--text-4);text-align:right;flex-shrink:0}
+.cap-trk{flex:1;height:26px;border-radius:5px;background:var(--surface-3);position:relative;overflow:hidden}
+.cap-supply{height:100%;border-radius:5px;background:var(--grad-accent);position:absolute;left:0;top:0;opacity:.7}
+.cap-demand{height:100%;border-radius:5px;background:rgba(239,68,68,.15);border-right:2px dashed #EF4444;position:absolute;left:0;top:0}
+.cap-num{width:50px;font-size:11px;font-weight:600;color:var(--text-3);text-align:right;flex-shrink:0}
+.fh-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.fh-lbl{width:55px;font-size:11px;color:var(--text-4);text-align:right;flex-shrink:0}
+.fh-bars{flex:1;display:flex;flex-direction:column;gap:3px}
+.fh-bar{height:14px;border-radius:3px;position:relative}
+.fh-bar span{position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:9px;color:#fff;white-space:nowrap;opacity:.9}
+.fh-fc{background:var(--accent)}.fh-ac{background:var(--teal-mid)}
+.fh-d{font-size:12px;font-weight:700;width:28px;text-align:center;flex-shrink:0}
+.fh-neg{color:#EF4444}.fh-pos{color:var(--accent)}.fh-ok{color:var(--text-4)}
+
+/* ALLOC TABLE */
+.at-hd{display:grid;grid-template-columns:1.5fr 2fr 1.2fr .7fr .8fr;padding:12px 18px;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-4)}
+.at-row{display:grid;grid-template-columns:1.5fr 2fr 1.2fr .7fr .8fr;padding:14px 18px;border-bottom:1px solid var(--border-light);font-size:13px;color:var(--text-2);align-items:center;cursor:pointer;transition:background .2s}
+.at-row:hover{background:var(--surface-2)}
+.at-name{display:flex;align-items:center;gap:10px;font-weight:600;color:var(--text)}
+.at-proj{font-size:12px}.at-role{font-size:12px;color:var(--text-3)}.at-date{font-size:12px;color:var(--text-3)}
+.free{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+.free-now{background:rgba(0,161,137,.1);color:var(--accent)}
+.free-soon{background:rgba(0,161,137,.06);color:var(--teal)}
+.free-weeks{background:var(--surface-3);color:var(--text-3)}
+
+/* PANELS (allocate detail) */
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.panel{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-lg);padding:22px;max-height:calc(100vh - 260px);overflow-y:auto;box-shadow:var(--shadow-sm)}
+.panel-t{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text-4);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border-light)}
+.rr{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border-light)}
+.rr-l{font-size:12px;color:var(--text-4)}.rr-v{font-size:13px;font-weight:500;text-align:right;color:var(--text)}
+.stag{display:inline-block;padding:3px 10px;border-radius:20px;border:1px solid var(--border);font-size:11px;font-weight:500;color:var(--text-2);margin:2px 3px}
+
+/* CONSULTANT CARD */
+.cc{padding:16px;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-md);margin-bottom:10px;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm)}
+.cc:hover{border-color:var(--border);box-shadow:var(--shadow-md)}
+.cc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cc-nr{display:flex;align-items:center;gap:10px}
+.cc-name{font-size:14px;font-weight:600;color:var(--text)}
+.cc-stat{padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.cc-avail{background:rgba(0,161,137,.1);color:var(--accent)}
+.cc-ending{background:rgba(217,163,21,.08);color:#B8860B}
+.cc-fit{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.fit-hi{color:var(--accent)}.fit-md{color:#B8860B}
+.fb-t{height:4px;border-radius:2px;background:var(--surface-3);margin-bottom:10px}
+.fb-f{height:100%;border-radius:2px;background:var(--accent)}
+.cc-reason{font-size:12px;line-height:1.5;color:var(--text-3);font-style:italic;padding:8px 12px;background:var(--surface-2);border-radius:var(--r-sm);border-left:2px solid var(--accent)}
+.cc-link{margin-top:8px;font-size:11px;color:var(--accent);font-weight:500;display:flex;align-items:center;gap:4px}
+
+/* PROFILE TABS */
+.ptab{display:none;animation:slideUp .3s ease}.ptab.on{display:block}
+
+/* OVERVIEW TAB */
+.ov-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;color:var(--text-2)}
+.ov-int{padding:4px 12px;border-radius:20px;background:rgba(0,161,137,.06);border:1px solid rgba(0,161,137,.12);font-size:11px;color:var(--teal-mid);font-weight:500}
+.ov-sk{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-light)}
+.ov-sn{font-size:12px;line-height:1.5;color:var(--text-3);flex:1}
+
+/* PAST PROJECTS */
+.ph{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 20px;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-md);margin-bottom:10px;box-shadow:var(--shadow-sm)}
+.ph:hover{border-color:var(--border)}
+.ph-dates{font-size:11px;color:var(--text-4);margin-bottom:4px}
+.ph-name{font-size:14px;font-weight:600;margin-bottom:2px;color:var(--text)}
+.ph-role{font-size:12px;color:var(--text-3)}
+.ph-right{display:flex;gap:20px}
+.ph-m{display:flex;flex-direction:column;align-items:center;gap:2px}
+.ph-ml{font-size:9px;color:var(--text-4);text-transform:uppercase;letter-spacing:.06em}
+.ph-mv{font-size:14px;font-weight:700}
+
+/* SKILL DETAIL */
+.skd{padding:16px 0;border-top:1px solid var(--border-light)}
+.skd-hd{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.skd-ev{display:flex;flex-direction:column;gap:10px;padding-left:12px;border-left:2px solid var(--border);margin-left:4px}
+.skd-ei{padding:10px 14px;background:var(--surface-2);border-radius:var(--r-sm)}
+.skd-ep{font-size:11px;font-weight:600;color:var(--accent);margin-bottom:4px}
+.skd-ed{font-size:12.5px;line-height:1.55;color:var(--text-2)}
+
+/* PERSONA */
+.pr{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border-light)}
+.pr-l{font-size:12px;color:var(--text-4)}.pr-v{font-size:12px;font-weight:500;text-align:right;color:var(--text-2)}
+.pe-block{margin-bottom:18px}
+.pe-trait{font-size:13px;font-weight:600;color:var(--text)}
+.pe-items{display:flex;flex-direction:column;gap:8px;padding-left:12px;border-left:2px solid var(--border);margin-left:4px;margin-top:8px}
+.pe-item{padding:10px 14px;background:var(--surface-2);border-radius:var(--r-sm)}
+.pe-src{font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.pe-det{font-size:12.5px;line-height:1.55;color:var(--text-2)}
+
+/* FIT MODAL */
+.fm-bg{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);overflow-y:auto;padding:30px 20px}
+.fm-bg.on{display:flex;justify-content:center;animation:fadeIn .25s ease}
+.fm{width:100%;max-width:780px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);margin:auto}
+.fm-hdr{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid var(--border-light)}
+.fm-btn{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-3);cursor:pointer;padding:6px 12px;border-radius:20px;border:1px solid var(--border);transition:all .2s}
+.fm-btn:hover{border-color:var(--text-3);color:var(--text)}
+.fm-btn.go:hover{border-color:var(--accent);color:var(--accent)}
+.fm-body{padding:24px}
+.fm-id{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.fm-ctx{display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(0,161,137,.04);border:1px solid rgba(0,161,137,.1);border-radius:var(--r-md);font-size:12px;color:var(--text-2);margin-bottom:24px}
+.fm-ctx strong{color:var(--text)}
+.fd{display:flex;flex-direction:column;gap:14px}
+.fd-card{background:var(--surface-2);border:1px solid var(--border-light);border-radius:var(--r-md);padding:18px 20px}
+.fd-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.fd-t{font-size:14px;font-weight:700;color:var(--text)}.fd-s{font-size:20px;font-weight:700}
+.fd-det{display:flex;flex-direction:column;gap:8px}
+.fm-row{display:grid;grid-template-columns:auto auto 1fr;gap:10px;align-items:start;padding:8px 0;border-bottom:1px solid var(--border-light)}
+.fm-row:last-child{border-bottom:none}
+.fm-ml{font-size:11px;font-weight:600;color:var(--text-3);white-space:nowrap}
+.fm-ms{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:8px;white-space:nowrap}
+.fm-strong{background:rgba(0,161,137,.1);color:var(--accent)}
+.fm-ok{background:rgba(0,161,137,.05);color:var(--teal)}
+.fm-weak{background:rgba(217,163,21,.08);color:#B8860B}
+.fm-ev{font-size:12px;line-height:1.5;color:var(--text-3)}
+.fm-ag{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.fm-ai{padding:8px 0;border-bottom:1px solid var(--border-light)}
+.fm-al{font-size:11px;color:var(--text-4);margin-bottom:2px}.fm-av{font-size:13px;font-weight:500;color:var(--text)}
+.fm-reason{margin-top:20px;padding:18px 20px;background:rgba(0,161,137,.03);border:1px solid rgba(0,161,137,.1);border-radius:var(--r-md)}
+.fm-cons{margin-top:14px;padding:16px 20px;background:var(--surface-2);border:1px solid var(--border-light);border-radius:var(--r-md)}
+.fm-ci{display:flex;align-items:flex-start;gap:8px;padding:6px 0;font-size:12px;line-height:1.5;color:var(--text-3)}
+.fm-ci svg{flex-shrink:0;margin-top:1px}
+
+/* NOTIF */
+.np{position:fixed;top:64px;right:28px;width:380px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);z-index:200;display:none;animation:slideUp .25s ease;max-height:calc(100vh - 100px);overflow-y:auto}
+.np.on{display:block}
+.np-hd{padding:18px 20px 14px;border-bottom:1px solid var(--border-light);font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center;color:var(--text)}
+.np-item{padding:14px 20px;border-bottom:1px solid var(--border-light);cursor:pointer;transition:background .2s}
+.np-item:hover{background:var(--surface-2)}
+.np-type{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.np-risk{color:#EF4444}.np-alloc{color:var(--accent)}.np-upd{color:#3B82F6}
+.np-txt{font-size:13px;color:var(--text-2);line-height:1.45}
+.np-time{font-size:10px;color:var(--text-4);margin-top:4px}
+
+/* ARCHIVE PANEL */
+.archive-panel{position:fixed;top:64px;right:28px;width:520px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);z-index:200;display:none;animation:slideUp .25s ease;max-height:calc(100vh - 100px);overflow-y:auto}
+.archive-panel.on{display:block}
+.archive-panel .np-hd{color:var(--text)}
+
+/* NEW PROJECT MODAL */
+.modal-bg{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.35);backdrop-filter:blur(6px);overflow-y:auto;padding:30px 20px}
+.modal-bg.on{display:flex;justify-content:center;animation:fadeIn .2s ease}
+.modal{width:100%;max-width:600px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);margin:auto}
+.modal-hdr{padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center}
+.modal-hdr h3{font-size:18px;font-weight:700;color:var(--text)}
+.modal-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-3);font-size:18px;transition:all .2s}
+.modal-close:hover{border-color:var(--text-3);color:var(--text)}
+.modal-body{padding:24px}
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.form-input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:14px;color:var(--text);background:var(--surface);transition:all .2s}
+.form-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,161,137,.08)}
+.form-input::placeholder{color:var(--text-4)}
+textarea.form-input{min-height:80px;resize:vertical}
+select.form-input{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A8D99' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.form-hint{font-size:11px;color:var(--text-4);margin-top:4px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border-light);display:flex;justify-content:flex-end;gap:10px}
+.btn-secondary{padding:10px 20px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-weight:600;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-secondary:hover{border-color:var(--text-3);color:var(--text)}
+.btn-primary{padding:10px 20px;border-radius:var(--r-sm);border:none;background:var(--grad-hero);color:#fff;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(0,54,61,.2)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,54,61,.25)}
+.btn-primary:disabled{opacity:.5;pointer-events:none}
+.step-indicator{display:flex;gap:8px;margin-bottom:24px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .2s}
+.step-dot.on{background:var(--accent);box-shadow:0 0 6px rgba(0,161,137,.3)}
+.step-dot.done{background:var(--teal-mid)}
+.upload-zone{padding:30px;border:2px dashed var(--border);border-radius:var(--r-md);text-align:center;color:var(--text-3);cursor:pointer;transition:all .2s}
+.upload-zone:hover{border-color:var(--accent);background:rgba(0,161,137,.02)}
+.skill-input-row{display:flex;gap:8px;margin-bottom:8px}
+.skill-input-row input{flex:1}
+.skill-input-row button{padding:0 12px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface);color:var(--text-3);cursor:pointer;font-size:16px}
+.skill-input-row button:hover{border-color:var(--accent);color:var(--accent)}
+.skill-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.skill-tag-rm{padding:4px 10px;border-radius:16px;background:var(--surface-2);border:1px solid var(--border);font-size:11px;color:var(--text-2);display:flex;align-items:center;gap:6px}
+.skill-tag-rm .x{cursor:pointer;color:var(--text-4);font-weight:700}
+.skill-tag-rm .x:hover{color:#EF4444}
+
+@media(max-width:768px){.h-grid,.st-grid,.panels{grid-template-columns:1fr}.suite-grid{grid-template-columns:repeat(2,1fr)}.p-card{flex-direction:column}.at-hd,.at-row{grid-template-columns:1fr 1fr 1fr;font-size:11px}.archive-panel{width:calc(100vw - 40px);right:20px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ==========================================================================
+   V-BRAIN DATA LAYER — Replace with API calls when semantic layer is live.
+   Shape docs at top of each section.
+   ========================================================================== */
+const DATA = {
+consultants: {
+  liam: {
+    initials:'LT',name:'Liam Torres',seniority:'Senior Consultant',specialty:'Data Engineering',joined:'Mar 2024',location:'Sydney, NSW',travel:'Open to travel',email:'liam.torres@visagio.com',phone:'+61 412 938 201',mentor:'Priscila Brasil',
+    utilisation:91,avgFit:84,satisfaction:3.9,careerAlign:'Moderate',careerNote:'Wants ML/AI — mostly ETL lately',
+    bio:'Liam is a technically deep, self-directed data engineer who does his best work when given a problem and space to solve it. He communicates concisely — prefers writing over meetings — and builds trust with technical counterparts quickly.',
+    bio2:'Mentors junior engineers in an open source data community. Working toward AWS Solutions Architect certification. Clear desire to shift toward ML engineering.',
+    interests:['Platform architecture','Data quality problems','ML engineering','Open source tooling','Technical mentoring'],
+    topSkills:[{name:'Snowflake',color:'accent',note:'Lakehouse architecture, Snowpipe, clustering — 2 projects'},{name:'dbt',color:'accent',note:'120+ models, introduced to a team from scratch — 2 projects'},{name:'Python',color:'accent',note:'Statistical models, PII pipelines, ETL validation — 4 projects'},{name:'SQL',color:'teal',note:'Complex query optimisation, window functions — all engagements'},{name:'Databricks',color:'teal',note:'Picked up in 2 weeks — PySpark, IoT batch processing'}],
+    skills:[
+      {name:'Python',color:'accent',evidence:[{project:'Nexus Digital',desc:'Built anomaly detection model (scikit-learn) — 12,400 near-duplicates flagged at 94% precision, saving ~3 weeks manual QA.'},{project:'Summit Health',desc:'PII masking pipeline for 2.1M patient records. Became reference implementation reused on 2 subsequent projects.'},{project:'Velocity Retail',desc:'ETL validation framework: automated row-count, schema-drift, freshness checks across 47 tables. Reduced incidents by 80%.'}]},
+      {name:'Snowflake',color:'accent',evidence:[{project:'Nexus Digital',desc:'Architected full lakehouse — medallion architecture, Snowpipe real-time ingestion from 4 legacy sources, dynamic data masking. ~8TB.'},{project:'Summit Health',desc:'Migrated 3 on-prem SQL Server DBs. Clustering keys + materialised views — query time from 45s to 3s.'}]},
+      {name:'dbt',color:'accent',evidence:[{project:'Nexus Digital',desc:'120+ models, incremental models for high-volume tables, custom macros for SCD Type 2, comprehensive tests.'},{project:'Harbour Group',desc:'Introduced dbt to a raw-SQL team. Set up project structure, CI/CD with GitHub Actions, trained 2 juniors.'}]},
+      {name:'Databricks',color:'teal',evidence:[{project:'Harbour Group',desc:'Picked up from scratch in ~2 weeks. Built PySpark notebooks for manufacturing IoT data (340 devices). Schema evolution + late-arriving data.'}]}
+    ],
+    persona:{style:'Autonomous, heads-down',comms:'Concise, async-first',stakeholder:'Moderate — technical audiences',team:'Strong individual contributor',ramp:'Fast — picked up Databricks in 2 wks'},
+    personaEvidence:[
+      {trait:'Autonomous, heads-down',items:[{source:'Nexus Digital — Partner (Priscila B.)',detail:'"Liam ran the entire data layer without needing daily check-ins. I could give him a target and he\'d come back with it built and tested."'},{source:'Summit Health — Communication analysis',detail:'Averaged 3 Slack messages/day vs team average of 14. Sent structured updates 2×/week.'}]},
+      {trait:'Fast ramp-up on new tools',items:[{source:'Harbour Group — Project timeline',detail:'First Databricks commit Day 3. By Day 12, core PySpark pipeline built.'}]}
+    ],
+    projects:[
+      {dates:'Feb–Jun 2026',name:'Nexus Digital — Data Platform Build',role:'Senior Data Engineer',fit:89,clientRating:4.2,satisfaction:4.0,summary:'Led the full data layer — Snowflake medallion lakehouse, 120+ dbt models, Python anomaly detection model cutting manual QA by 3 weeks.'},
+      {dates:'Sep 2025–Jan 2026',name:'Summit Health — Patient Data Migration',role:'Data Engineer',fit:82,clientRating:4.5,satisfaction:3.5,summary:'Migrated 3 on-prem databases to Snowflake. Optimised query performance from 45s to 3s.'},
+      {dates:'May–Aug 2025',name:'Harbour Group — Data Warehouse Build',role:'Data Engineer',fit:76,clientRating:3.8,satisfaction:4.2,summary:'PySpark for IoT batch processing. Introduced dbt and trained 2 junior consultants.'},
+      {dates:'Mar–Apr 2025',name:'Velocity Retail — ETL Pipeline Audit',role:'Consultant',fit:88,clientRating:4.0,satisfaction:3.8,summary:'ETL validation framework reducing data quality incidents by 80%.'}
+    ],
+    currentProject:'Nexus Digital — Data Platform Build',currentProjectLabel:null,currentRole:'Senior, Data Engineer',freeIn:'8 days',freeDate:'12 Jun',freeBadge:'free-soon'
+  },
+  sarah: {
+    initials:'SC',name:'Sarah Chen',seniority:'Senior Consultant',specialty:'Data Analytics',joined:'Sep 2023',location:'Melbourne, VIC',travel:'Prefers local',email:'sarah.chen@visagio.com',phone:'+61 403 221 897',mentor:'Jonathan K.',
+    utilisation:88,avgFit:82,satisfaction:4.1,careerAlign:'Strong',careerNote:'Moving toward team lead roles',
+    bio:'Sarah excels at translating complex data into clear business narratives. She thrives in collaborative settings and is increasingly taking on leadership responsibilities.',
+    bio2:'Pursuing Masters in Business Analytics part-time. Known for documentation that outlasts her engagement on projects.',
+    interests:['Data storytelling','Stakeholder presentations','Team leadership','Process improvement','Mentoring juniors'],
+    topSkills:[{name:'Power BI',color:'accent',note:'15+ executive dashboards across 3 projects'},{name:'SQL',color:'accent',note:'Advanced analytics, performance tuning — every engagement'},{name:'Python',color:'teal',note:'Pandas/NumPy analysis, basic ML models'},{name:'Stakeholder Mgmt',color:'teal',note:'Consistently top-rated for client communication'}],
+    skills:[{name:'Power BI',color:'accent',evidence:[{project:'Atlas Bank',desc:'Built executive dashboards that became the primary decision tool for the client CTO. 6 dashboards with real-time KPIs.'},{project:'Pinnacle Insurance',desc:'Rebuilt entire reporting stack from legacy Excel. Trained 8 client staff on self-service analytics.'}]},{name:'SQL',color:'accent',evidence:[{project:'Atlas Bank',desc:'Complex analytics queries for the reporting layer. Optimised for Power BI DirectQuery.'}]}],
+    persona:{style:'Collaborative, structured',comms:'Clear, visual-first',stakeholder:'Strong — all audiences',team:'Emerging leader',ramp:'Moderate — thorough'},
+    personaEvidence:[{trait:'Collaborative leader',items:[{source:'Atlas Bank — Partner (Jonathan K.)',detail:'"Sarah organises everything. The team runs better when she\'s on it. She\'s ready for a lead role."'}]}],
+    projects:[
+      {dates:'Feb–Jun 2026',name:'Atlas Bank — Digital Transformation',role:'Lead, Data Workstream',fit:86,clientRating:4.3,satisfaction:4.2,summary:'Led data workstream. Executive dashboards became the primary decision tool for the client CTO.'},
+      {dates:'Aug 2025–Jan 2026',name:'Pinnacle Insurance — Reporting Overhaul',role:'Senior Analyst',fit:84,clientRating:4.4,satisfaction:4.0,summary:'Rebuilt reporting stack from Excel to Power BI. Trained 8 client staff.'},
+      {dates:'Mar–Jul 2025',name:'Crestline Manufacturing — Ops Analytics',role:'Analyst',fit:78,clientRating:3.9,satisfaction:3.8,summary:'Built predictive maintenance models using historical sensor data.'}
+    ],
+    currentProject:'Atlas Bank — Digital Transformation',currentProjectLabel:null,currentRole:'Lead, Data Workstream',freeIn:'8 wks',freeDate:'30 Jul',freeBadge:'free-weeks'
+  },
+  raj: {
+    initials:'RP',name:'Raj Patel',seniority:'Senior Consultant',specialty:'Client Delivery',joined:'Jun 2023',location:'Sydney, NSW',travel:'Open to travel',email:'raj.patel@visagio.com',phone:'+61 411 554 332',mentor:'Winsome C.',
+    utilisation:94,avgFit:80,satisfaction:3.7,careerAlign:'Strong',careerNote:'Wants engagement manager — on track',
+    bio:'Raj is a high-energy delivery consultant who keeps projects moving. Notices when milestones slip and escalates before problems grow.',
+    bio2:'Former Big 4 management consultant. Structured thinking and stakeholder skills above his seniority level.',
+    interests:['Engagement management','Client relationships','Process governance','Risk management'],
+    topSkills:[{name:'Project Delivery',color:'accent',note:'Managed 4 concurrent workstreams on Atlas Bank'},{name:'Client Mgmt',color:'accent',note:'Primary client contact on 3 projects'},{name:'Risk Mgmt',color:'teal',note:'Identified Atlas data quality issue early'},{name:'Jira/Confluence',color:'teal',note:'Set up delivery tracking for all recent engagements'}],
+    skills:[{name:'Project Delivery',color:'accent',evidence:[{project:'Atlas Bank',desc:'Managed delivery coordination across 4 workstreams. Created sprint dashboards and escalation frameworks.'}]},{name:'Client Mgmt',color:'accent',evidence:[{project:'Atlas Bank',desc:'Became primary client contact for day-to-day operations.'},{project:'Meridian Logistics',desc:'Ran weekly client standups. First to flag when client engagement dropped.'}]}],
+    persona:{style:'Proactive, structured',comms:'Frequent, verbal-first',stakeholder:'Strong — all levels',team:'Coordinator/glue',ramp:'Fast — strong generalist'},
+    personaEvidence:[{trait:'Proactive coordinator',items:[{source:'Atlas Bank — QA (Winsome C.)',detail:'"Raj is the person who makes sure nothing falls through the cracks."'}]}],
+    projects:[
+      {dates:'Feb–Jun 2026',name:'Atlas Bank — Digital Transformation',role:'Senior, Client Delivery',fit:83,clientRating:4.1,satisfaction:3.8,summary:'Managed delivery across 4 workstreams. Became primary client contact.'},
+      {dates:'Sep 2025–Jan 2026',name:'Meridian Logistics — Phase 1',role:'Delivery Lead',fit:80,clientRating:4.0,satisfaction:3.5,summary:'Ran weekly client standups. Flagged early when client engagement dropped.'},
+      {dates:'Apr–Aug 2025',name:'Verdant Energy — Strategy',role:'Consultant',fit:76,clientRating:3.8,satisfaction:3.8,summary:'Competitive analysis and stakeholder interviews.'}
+    ],
+    currentProject:'Atlas Bank — Digital Transformation',currentProjectLabel:null,currentRole:'Senior, Client Delivery',freeIn:'8 wks',freeDate:'30 Jul',freeBadge:'free-weeks'
+  },
+  kira: {
+    initials:'KW',name:'Kira Watanabe',seniority:'Senior Consultant',specialty:'Data Engineering',joined:'Jan 2024',location:'Brisbane, QLD',travel:'Open to travel',email:'kira.watanabe@visagio.com',phone:'+61 432 109 776',mentor:'Monique V.',
+    utilisation:79,avgFit:77,satisfaction:4.0,careerAlign:'Strong',careerNote:'Wants cloud architecture — aligning well',
+    bio:'Kira is a versatile data engineer with a knack for quickly learning new stacks. Quieter than most but delivers consistently high-quality work.',
+    bio2:'AWS Solutions Architect Associate certified. Active in Brisbane Python meetup community.',
+    interests:['Cloud architecture','Infrastructure as code','AWS ecosystem','Automation'],
+    topSkills:[{name:'Python',color:'accent',note:'Core scripting and pipeline development — 3 projects'},{name:'SQL',color:'accent',note:'Advanced querying, stored procedures'},{name:'AWS',color:'accent',note:'S3, Lambda, Glue, Redshift — certified'},{name:'Terraform',color:'teal',note:'IaC for 2 cloud migration projects'}],
+    skills:[{name:'AWS',color:'accent',evidence:[{project:'Harbour Group',desc:'Migrated on-prem warehouse to Redshift. Wrote all Terraform IaC. Zero downtime cutover.'},{project:'Apex Telecom',desc:'Kafka-to-S3 ingestion layer. Lambda functions for real-time transformations.'}]}],
+    persona:{style:'Quiet, methodical',comms:'Written, detailed',stakeholder:'Developing — mostly internal',team:'Reliable contributor',ramp:'Very fast'},
+    personaEvidence:[{trait:'Quiet, methodical',items:[{source:'Harbour Group — Partner (Carol M.)',detail:'"Kira doesn\'t say much in meetings but her code is always clean and well-documented."'}]}],
+    projects:[
+      {dates:'Oct 2025–Mar 2026',name:'Harbour Group — Cloud Migration',role:'Data Engineer',fit:79,clientRating:4.0,satisfaction:4.2,summary:'Migrated on-prem warehouse to AWS Redshift. Terraform IaC. Zero downtime cutover.'},
+      {dates:'May–Sep 2025',name:'Apex Telecom — Data Lake Build',role:'Junior Data Engineer',fit:74,clientRating:3.7,satisfaction:3.8,summary:'Kafka-to-S3 data lake ingestion layer.'}
+    ],
+    currentProject:null,currentProjectLabel:'Bench — Available now',currentRole:'Senior, Data Engineer',freeIn:'Now',freeDate:'—',freeBadge:'free-now'
+  },
+  elena: {
+    initials:'EM',name:'Elena Morales',seniority:'Consultant',specialty:'Business Analysis',joined:'Aug 2024',location:'Sydney, NSW',travel:'Open to travel',email:'elena.morales@visagio.com',phone:'+61 422 887 143',mentor:'Priscila Brasil',
+    utilisation:82,avgFit:85,satisfaction:4.3,careerAlign:'Strong',careerNote:'Growing into senior BA — excellent trajectory',
+    bio:'Elena bridges the gap between technical teams and business stakeholders. Creates process maps and requirements documents that clients consistently praise.',
+    bio2:'Background in UX research. Unusual ability to empathise with end users.',
+    interests:['Process design','Stakeholder interviews','Workshop facilitation','UX thinking'],
+    topSkills:[{name:'Requirements Gathering',color:'accent',note:'Led requirements for 3 projects — 4.5+/5 client feedback'},{name:'Process Mapping',color:'accent',note:'40+ maps on Meridian — adopted by client'},{name:'Workshop Facilitation',color:'teal',note:'12 stakeholder workshops across 2 engagements'},{name:'Stakeholder Comms',color:'teal',note:'Translates technical → business — key strength per 3 partners'}],
+    skills:[{name:'Process Mapping',color:'accent',evidence:[{project:'Meridian Logistics',desc:'Created 40+ process maps for warehouse operations. Client: "the clearest communicator we\'ve worked with."'},{project:'Crestline Manufacturing',desc:'Mapped 6-department digital transformation gaps.'}]}],
+    persona:{style:'Structured, empathetic',comms:'Clear, visual, verbal',stakeholder:'Excellent — esp. non-technical',team:'Bridge/translator',ramp:'Moderate — thorough'},
+    personaEvidence:[{trait:'Structured, empathetic',items:[{source:'Partner (Priscila B.)',detail:'"Elena has a rare ability to make non-technical stakeholders feel heard while capturing precise technical requirements."'}]}],
+    projects:[
+      {dates:'Jan–May 2026',name:'Meridian Logistics — Supply Chain',role:'Business Analyst',fit:88,clientRating:4.5,satisfaction:4.5,summary:'40+ process maps, all stakeholder workshops. Client: "clearest communicator."'},
+      {dates:'Aug–Dec 2025',name:'Crestline Manufacturing — Digital Roadmap',role:'Junior BA',fit:82,clientRating:4.2,satisfaction:4.0,summary:'Stakeholder interviews and gap analysis across 6 departments.'}
+    ],
+    currentProject:null,currentProjectLabel:'Bench — Available now',currentRole:'Consultant, BA',freeIn:'Now',freeDate:'—',freeBadge:'free-now'
+  },
+  miguel: {
+    initials:'MS',name:'Miguel Santos',seniority:'Consultant',specialty:'Operations',joined:'Feb 2025',location:'Sydney, NSW',travel:'Open to travel',email:'miguel.santos@visagio.com',phone:'+61 401 322 668',mentor:'Winsome C.',
+    utilisation:85,avgFit:76,satisfaction:3.6,careerAlign:'Moderate',careerNote:'Exploring supply chain vs data specialisation',
+    bio:'Miguel is an energetic early-career consultant still finding his specialty. Learns quickly with structured mentoring.',
+    bio2:'Industrial engineering background. Brings quantitative rigour to operational problems.',
+    interests:['Operations optimisation','Supply chain','Lean/Six Sigma','Quantitative modelling'],
+    topSkills:[{name:'Operations Analysis',color:'accent',note:'Led efficiency audit on Meridian — 23% waste reduction'},{name:'Excel/Modelling',color:'teal',note:'Financial models and scenario analyses — 2 projects'},{name:'SQL',color:'teal',note:'Self-taught, ad-hoc analysis'}],
+    skills:[{name:'Operations Analysis',color:'accent',evidence:[{project:'Meridian Logistics',desc:'Warehouse observations across 3 distribution centres. Identified 23% waste reduction opportunity.'}]}],
+    persona:{style:'Energetic, adaptable',comms:'Verbal, frequent',stakeholder:'Developing',team:'Enthusiastic contributor',ramp:'Fast when mentored'},
+    personaEvidence:[{trait:'Energetic, adaptable',items:[{source:'Meridian — QA (Jonathan K.)',detail:'"Miguel has great energy. He needs direction but once pointed, he delivers."'}]}],
+    projects:[{dates:'Feb–Jun 2026',name:'Meridian Logistics — Supply Chain',role:'Consultant',fit:74,clientRating:3.5,satisfaction:3.6,summary:'Operational efficiency workstream. Warehouse observations across 3 distribution centres.'}],
+    currentProject:'Meridian Logistics — Supply Chain',currentProjectLabel:null,currentRole:'Consultant',freeIn:'3 wks',freeDate:'25 Jun',freeBadge:'free-soon'
+  },
+  david: {
+    initials:'DL',name:'David Lee',seniority:'Senior Consultant',specialty:'Operations Strategy',joined:'May 2023',location:'Melbourne, VIC',travel:'Open to travel',email:'david.lee@visagio.com',phone:'+61 413 774 220',mentor:'Carol M.',
+    utilisation:90,avgFit:83,satisfaction:4.0,careerAlign:'Strong',careerNote:'On track for manager',
+    bio:'David brings calm to complex delivery situations. Breaks down ambiguous operating model problems into actionable workstreams.',
+    bio2:'Ex-McKinsey analyst. Brings rigour and frameworks but adapts them practically.',
+    interests:['Operating model design','Org transformation','Governance frameworks','Executive stakeholder mgmt'],
+    topSkills:[{name:'Operating Model Design',color:'accent',note:'Led Harbour Group redesign — 5 business units'},{name:'Stakeholder Mgmt',color:'accent',note:'Trusted for C-suite interactions'},{name:'Process Governance',color:'teal',note:'Frameworks adopted company-wide by 2 clients'},{name:'Workshop Design',color:'teal',note:'20+ executive alignment workshops'}],
+    skills:[{name:'Operating Model Design',color:'accent',evidence:[{project:'Harbour Group',desc:'Led operating model redesign across 5 business units. Secured board sign-off.'},{project:'Crestline Manufacturing',desc:'Reduced management layers from 7 to 5.'}]}],
+    persona:{style:'Structured, calm',comms:'Polished, considered',stakeholder:'Excellent — C-suite',team:'Quiet leader',ramp:'Moderate'},
+    personaEvidence:[{trait:'Structured, calm',items:[{source:'Harbour Group — Client CEO',detail:'"David brought clarity we desperately needed during the transition. The board trusts him."'}]}],
+    projects:[
+      {dates:'Jan–Jun 2026',name:'Harbour Group — Operating Model Redesign',role:'Senior, Ops Lead',fit:87,clientRating:4.4,satisfaction:4.0,summary:'Led operating model redesign. Board presentation approved.'},
+      {dates:'Jul–Dec 2025',name:'Crestline Manufacturing — Org Design',role:'Senior Consultant',fit:81,clientRating:4.1,satisfaction:3.9,summary:'Redesigned manufacturing org. Reduced layers from 7 to 5.'}
+    ],
+    currentProject:'Harbour Group — Operating Model Redesign',currentProjectLabel:null,currentRole:'Senior, Ops Lead',freeIn:'3 wks',freeDate:'25 Jun',freeBadge:'free-soon'
+  },
+  jess: {
+    initials:'JW',name:'Jess Wang',seniority:'Consultant',specialty:'Change Management',joined:'Nov 2024',location:'Melbourne, VIC',travel:'Local preferred',email:'jess.wang@visagio.com',phone:'+61 408 663 991',mentor:'Carol M.',
+    utilisation:80,avgFit:78,satisfaction:4.2,careerAlign:'Strong',careerNote:'Clear path into change management',
+    bio:'Jess brings a human-centred approach to change management. Excels at understanding resistance patterns and designing adoption strategies that stick.',
+    bio2:'Background in organisational psychology. Applies behavioural science to change adoption.',
+    interests:['Change management','Adoption strategies','Behavioural science','Training design'],
+    topSkills:[{name:'Change Management',color:'accent',note:'92% employee adoption on Harbour Group'},{name:'Internal Comms',color:'accent',note:'All comms for Harbour transition'},{name:'Training Design',color:'teal',note:'Programs for 200+ employees'}],
+    skills:[{name:'Change Management',color:'accent',evidence:[{project:'Harbour Group',desc:'92% employee adoption of new operating model within 3 months — exceeding 80% target.'}]}],
+    persona:{style:'Empathetic, thorough',comms:'Written, warm',stakeholder:'Good — mid-management',team:'Supportive, glue',ramp:'Moderate'},
+    personaEvidence:[{trait:'Empathetic, thorough',items:[{source:'Partner (Carol M.)',detail:'"Jess\'s change comms were exceptional. Employees felt heard, not just told."'}]}],
+    projects:[{dates:'Jan–Jun 2026',name:'Harbour Group — Operating Model Redesign',role:'Change Management',fit:82,clientRating:4.3,satisfaction:4.2,summary:'Change management strategy. 92% employee adoption within 3 months.'}],
+    currentProject:'Harbour Group — Operating Model Redesign',currentProjectLabel:null,currentRole:'Consultant, Change Mgmt',freeIn:'3 wks',freeDate:'25 Jun',freeBadge:'free-soon'
+  },
+  ana: {
+    initials:'AR',name:'Ana Ribeiro',seniority:'Consultant',specialty:'Business Analysis',joined:'Jul 2024',location:'Sydney, NSW',travel:'Open to travel',email:'ana.ribeiro@visagio.com',phone:'+61 421 550 443',mentor:'Monique V.',
+    utilisation:86,avgFit:80,satisfaction:3.9,careerAlign:'Moderate',careerNote:'Exploring product management',
+    bio:'Ana is a sharp, detail-oriented BA with strong technical instincts. Writes precise requirements and catches edge cases others miss.',
+    bio2:'Computer science background. Can read and review code, bridging dev and business teams.',
+    interests:['Product thinking','Technical requirements','API design','Agile methodology'],
+    topSkills:[{name:'Requirements Engineering',color:'accent',note:'Wrote Nexus Digital specs — devs praised clarity'},{name:'Agile/Scrum',color:'teal',note:'Scrum master on Nexus — ran all ceremonies'},{name:'Technical Analysis',color:'teal',note:'Reviews code PRs and translates for stakeholders'}],
+    skills:[{name:'Requirements Engineering',color:'accent',evidence:[{project:'Nexus Digital',desc:'All technical requirements and user stories. Caught 14 edge cases during UAT.'},{project:'Apex Telecom',desc:'Product roadmap support — competitive analysis and user story mapping.'}]}],
+    persona:{style:'Detail-oriented, technical',comms:'Precise, written',stakeholder:'Good — technical audiences',team:'Quality enforcer',ramp:'Fast'},
+    personaEvidence:[{trait:'Detail-oriented, technical',items:[{source:'Partner (Priscila B.)',detail:'"Ana caught things in UAT that the dev team missed. She thinks like an engineer."'}]}],
+    projects:[
+      {dates:'Feb–Jun 2026',name:'Nexus Digital — Data Platform Build',role:'Business Analyst',fit:81,clientRating:4.0,satisfaction:3.9,summary:'All technical requirements and user stories. Scrum master. Caught 14 UAT edge cases.'},
+      {dates:'Aug–Jan 2026',name:'Apex Telecom — Product Roadmap',role:'Junior BA',fit:78,clientRating:3.8,satisfaction:3.8,summary:'Product roadmap development, competitive analysis.'}
+    ],
+    currentProject:'Nexus Digital — Data Platform Build',currentProjectLabel:null,currentRole:'Consultant, BA',freeIn:'5 wks',freeDate:'9 Jul',freeBadge:'free-weeks'
+  }
+},
+projects: {
+  atlas: {
+    name:'Atlas Bank — Digital Transformation',status:'active',statusLabel:'Active',
+    partner:'Jonathan K.',qa:'Winsome C.',team:['sarah','raj'],teamDisplay:'Sarah C., Raj P., +2',started:'Feb 2026',
+    desc:'End-to-end digital transformation of retail banking operations. Phase 2 focused on customer onboarding and KYC automation targeting 60% process reduction.',
+    updated:'Updated 2h ago',
+    timeline:[
+      {date:'2 Jun',type:'decision',title:'Scope expanded to include SME onboarding',desc:'Partner approved adding SME segment to Phase 2. Timeline extended 3 weeks. Client agreed to additional budget.',source:'Partner call recording (1 Jun), updated SOW'},
+      {date:'28 May',type:'milestone',title:'Phase 1 KYC automation delivered',desc:'Automated KYC pipeline deployed to staging. 62% process reduction vs 60% target. Client sign-off received.',source:'Delivery report, client email'},
+      {date:'22 May',type:'personnel',title:'Sarah Chen moved to lead data workstream',desc:'Previously supporting analyst, now leading data migration sub-team. Raj shifted to client-facing delivery.',source:'Team Slack, allocation sheet'},
+      {date:'15 May',type:'risk',title:'Client data quality issues on legacy CRM',desc:'Legacy CRM had 34% incomplete records. Required 2-week remediation sprint. Escalated to partner.',source:'Technical Slack, partner escalation email'},
+      {date:'8 May',type:'update',title:'Weekly checkpoint — on track',desc:'Sprint velocity stable. All Phase 1 deliverables tracking to deadline.',source:'Weekly standup recording, Jira board'}
+    ],
+    health:{
+      delivery:{pct:78,color:'var(--accent)',label:'Milestones on track — 7 of 9 completed',details:[{l:'Phase 1 — KYC Automation',v:'Delivered (62% reduction)'},{l:'Phase 2 — SME Onboarding',v:'In progress (Wk 2/5)'},{l:'Phase 2 — Reporting Suite',v:'Not started'},{l:'Blocked milestones',v:'0'}]},
+      utilisation:{pct:92,color:'#B8860B',label:'Above target — potential overload on Sarah C.',details:[{l:'Sarah Chen',v:'96% (flagged)'},{l:'Raj Patel',v:'91%'},{l:'Contractor 1',v:'88%'},{l:'Contractor 2',v:'85%'}]},
+      comms:{pct:85,color:'var(--accent)',label:'14 touchpoints last 2 weeks — up from 11',details:[{l:'Client emails (2 wks)',v:'23 threads'},{l:'Client calls',v:'4 scheduled, 2 ad-hoc'},{l:'Last client meeting',v:'3 Jun (yesterday)'},{l:'Avg response time',v:'2.4 hours'},{l:'Sentiment trend',v:'Stable positive'}]},
+      risk:{value:'1',color:'#B8860B',label:'Data quality remediation in progress. Partner aware.',details:[{l:'Active risk',v:'Legacy CRM — 34% incomplete'},{l:'Mitigation',v:'Remediation sprint (Week 1/2)'},{l:'Owner',v:'Sarah Chen + partner oversight'},{l:'Impact if unresolved',v:'Phase 2 slip (est. 2 wks)'}]}
+    },
+    internalTeam:[{i:'JK',n:'Jonathan K.',r:'Partner · Engagement Lead'},{i:'WC',n:'Winsome C.',r:'QA · Delivery Oversight'},{i:'SC',n:'Sarah Chen',r:'Lead · Data Workstream',accent:true},{i:'RP',n:'Raj Patel',r:'Senior · Client Delivery'}],
+    clientTeam:[{i:'MH',n:'Michael Hargreaves',r:'CTO · Executive Sponsor'},{i:'TL',n:'Tara Liu',r:'Head of Digital · Day-to-day'},{i:'PD',n:'Peter Demetriou',r:'IT Lead · Technical POC'}],
+    docs:[{n:'Statement of Work — Phase 2 (v3)',sub:'Updated 2 Jun · Most referenced this month',c:'var(--accent)'},{n:'KYC Automation — Technical Architecture',sub:'Phase 1 deliverable · Client approved',c:'#3B82F6'},{n:'Data Quality Remediation Plan',sub:'Created 16 May · Linked to risk',c:'#8B5CF6'},{n:'Weekly Status Reports (Archive)',sub:'12 reports · Feb–Jun 2026',c:'var(--text-4)'}],
+    allocNeeds:[
+      {role:'Senior Data Engineer',seniority:'Senior (3+ yrs)',duration:'~12 weeks',skills:['Snowflake','dbt','Python','SQL'],persona:'Technical, autonomous',notes:'"Needs someone who can own the data layer. Client CTO is technical — they\'ll test them."',
+        recs:[
+          {id:'liam',fit:91,fitClass:'fit-hi',reasoning:'Strong Snowflake + dbt from Nexus Digital. Led data workstream independently. Technical CTO rated him highly. Available 4 days after start date.',
+            fitBreakdown:{skills:{score:95,matches:[{skill:'Snowflake',status:'strong',evidence:'Architected full lakehouse on Nexus Digital (8TB, medallion, Snowpipe)'},{skill:'dbt',status:'strong',evidence:'120+ models on Nexus, introduced to Harbour from scratch'},{skill:'Python',status:'strong',evidence:'Anomaly detection, PII masking, ETL validation — 3 projects'},{skill:'SQL',status:'strong',evidence:'Core competency across all 4 engagements'}]},persona:{score:92,matches:[{trait:'Autonomy',status:'strong',evidence:'Ran Nexus data workstream with minimal oversight.'},{trait:'Technical stakeholders',status:'strong',evidence:'Positive rapport with Nexus CTO.'},{trait:'Working style',status:'ok',evidence:'Heads-down, async — fits build phase. May need support for business workshops.'}]},availability:{score:82,details:[{l:'Current project ends',v:'12 Jun 2026'},{l:'Atlas start date',v:'16 Jun 2026'},{l:'Gap',v:'4 days'},{l:'Leave planned',v:'None'},{l:'Duration',v:'~12 weeks'}]},experience:{score:90,matches:[{trait:'Seniority',status:'strong',evidence:'Senior Consultant, 2.3 yrs. Led data workstreams on 2 projects.'},{trait:'Domain',status:'ok',evidence:'No banking but data migration transfers.'},{trait:'Past performance',status:'strong',evidence:'Avg fit 84%, trending up.'}]},semantic:{score:89,matches:[{trait:'Career alignment',status:'ok',evidence:'Wants ML/AI — Atlas is ETL. Consider ML-adjacent next.'},{trait:'Team fit',status:'strong',evidence:'Technical specialist complements delivery-heavy Atlas team.'}]}},
+            reasoning_full:'Liam is the strongest match — Snowflake/dbt experience directly maps to Atlas requirements and his autonomous style matches the partner\'s need. 4-day gap is minimal. Primary consideration: third ETL project may misalign with his ML/AI career goals.',
+            considerations:['No banking domain — 1-2 weeks onboarding','Third ETL project — career misalignment risk','Nexus end date 92% confidence']
+          },
+          {id:'kira',fit:74,fitClass:'fit-md',reasoning:'Strong Python and SQL. No Snowflake but demonstrated fast ramp-up (Databricks in 2 weeks). Immediately available.',
+            fitBreakdown:{skills:{score:68,matches:[{skill:'Python',status:'strong',evidence:'Core competency across 3 projects.'},{skill:'SQL',status:'strong',evidence:'Advanced querying — all engagements.'},{skill:'Snowflake',status:'weak',evidence:'No experience. Closest: Redshift (AWS).'},{skill:'dbt',status:'weak',evidence:'No experience. Would need training.'}]},persona:{score:72,matches:[{trait:'Autonomy',status:'ok',evidence:'Quiet, methodical. Reliable but prefers written guidance.'},{trait:'Technical stakeholders',status:'ok',evidence:'Mostly internal-facing so far.'}]},availability:{score:98,details:[{l:'Status',v:'Bench — available immediately'},{l:'Gap',v:'None'},{l:'Duration',v:'12 weeks — fully available'}]},experience:{score:65,matches:[{trait:'Seniority',status:'ok',evidence:'2 projects only. Less battle-tested.'},{trait:'Ramp-up',status:'strong',evidence:'Databricks in 2 weeks. Fast learner.'}]},semantic:{score:70,matches:[{trait:'Career alignment',status:'strong',evidence:'Snowflake experience would grow her cloud architecture path.'}]}},
+            reasoning_full:'Kira is a solid backup — immediately available, strong Python/SQL, historically fast at new tools. Gap is Snowflake/dbt — she\'d need a ramp. Career-wise, excellent growth opportunity.',
+            considerations:['No Snowflake/dbt — 2-3 week ramp','Less client-facing experience','Fewer total projects']
+          }
+        ]
+      },
+      {role:'Business Analyst',seniority:'Consultant (1–2 yrs)',duration:'~8 weeks',skills:['Requirements gathering','Process mapping'],persona:'Strong communicator, detail-oriented',notes:'"Client stakeholders are non-technical. Need someone who translates well."',
+        recs:[
+          {id:'elena',fit:88,fitClass:'fit-hi',reasoning:'Excellent communication on 3 engagements. Process mapping was primary deliverable on Meridian. Immediately available.',
+            fitBreakdown:{skills:{score:92,matches:[{skill:'Requirements gathering',status:'strong',evidence:'Led requirements for 3 projects — 4.5+/5 feedback.'},{skill:'Process mapping',status:'strong',evidence:'40+ maps on Meridian — adopted by client.'}]},persona:{score:95,matches:[{trait:'Communication',status:'strong',evidence:'"Clearest communicator." UX research background.'},{trait:'Non-technical audiences',status:'strong',evidence:'3 partners rate this as her key strength.'}]},availability:{score:100,details:[{l:'Status',v:'Bench — available immediately'},{l:'Duration',v:'8 weeks — fully available'}]},experience:{score:82,matches:[{trait:'Domain',status:'ok',evidence:'Logistics + manufacturing. Banking is new.'}]},semantic:{score:88,matches:[{trait:'Career alignment',status:'strong',evidence:'Wants senior BA — builds her portfolio.'}]}},
+            reasoning_full:'Elena is the strongest BA match. Communication skills directly address the partner\'s requirement. Immediately available, career-aligned.',
+            considerations:['No banking domain','First engagement since Meridian bench']
+          },
+          {id:'ana',fit:72,fitClass:'fit-md',reasoning:'Solid requirements from Nexus Digital. More technical — good if role evolves. Less non-technical stakeholder experience.',
+            fitBreakdown:{skills:{score:80,matches:[{skill:'Requirements gathering',status:'strong',evidence:'Nexus Digital technical specs praised by devs.'},{skill:'Process mapping',status:'ok',evidence:'Limited — more focused on user stories.'}]},persona:{score:65,matches:[{trait:'Communication',status:'ok',evidence:'Precise and written. Stronger technical.'},{trait:'Non-technical audiences',status:'weak',evidence:'CS background defaults to technical language.'}]},availability:{score:70,details:[{l:'Current project',v:'Nexus Digital — ends ~9 Jul'},{l:'Gap',v:'Not available until Jul'}]},experience:{score:78,matches:[{trait:'Technical depth',status:'strong',evidence:'Can review code PRs.'}]},semantic:{score:72,matches:[{trait:'Career',status:'ok',evidence:'Wants product mgmt, not BA.'}]}},
+            reasoning_full:'Ana is a backup with stronger technical depth but weaker non-technical communication. Bigger issue: not available until July.',
+            considerations:['Not available until 9 Jul','Stronger with technical audiences','Wants product mgmt, not BA path']
+          }
+        ]
+      }
+    ]
+  },
+  nexus: {
+    name:'Nexus Digital — Data Platform Build',status:'active',statusLabel:'Active',
+    partner:'Priscila B.',qa:'Monique V.',team:['liam','ana'],teamDisplay:'Liam T., Ana R.',started:'Feb 2026',
+    desc:'Unified customer data platform consolidating 4 legacy systems. Final sprint — lakehouse on Snowflake, go-live 12 Jun.',
+    updated:'Updated 1d ago',
+    timeline:[
+      {date:'3 Jun',type:'milestone',title:'UAT sign-off from client',desc:'All acceptance tests passed. 14 edge cases resolved. Client approved production deployment.',source:'Jira UAT board, client email'},
+      {date:'25 May',type:'decision',title:'Go-live date confirmed: 12 Jun',desc:'Partner and client CTO aligned on deployment date. Rollback plan documented.',source:'Partner call notes'},
+      {date:'18 May',type:'update',title:'Data migration 98% complete',desc:'Final 2% are edge-case records. Liam built anomaly detection to flag remaining issues.',source:'Sprint report, Slack'},
+      {date:'10 May',type:'risk',title:'Performance bottleneck in gold-layer queries',desc:'Dashboard queries hitting 45s. Resolved with clustering keys and materialised views.',source:'Performance monitoring, Git commits'}
+    ],
+    health:{
+      delivery:{pct:95,color:'var(--accent)',label:'Final sprint — all deliverables on track for 12 Jun',details:[{l:'Data migration',v:'98% complete'},{l:'dbt model suite',v:'120 models — all tested'},{l:'Dashboards',v:'8 of 8 delivered'},{l:'UAT',v:'Passed — client signed off'}]},
+      utilisation:{pct:88,color:'var(--accent)',label:'Well-balanced',details:[{l:'Liam Torres',v:'90%'},{l:'Ana Ribeiro',v:'86%'}]},
+      comms:{pct:92,color:'var(--accent)',label:'Strong — daily standups with client',details:[{l:'Client emails (2 wks)',v:'18 threads'},{l:'Daily standups',v:'9/10 attended by client'},{l:'Sentiment',v:'Very positive'}]},
+      risk:{value:'0',color:'var(--accent)',label:'No active risks. Performance bottleneck resolved.',details:[{l:'Resolved',v:'1 (performance — fixed)'},{l:'Blockers',v:'None'}]}
+    },
+    internalTeam:[{i:'PB',n:'Priscila B.',r:'Partner'},{i:'MV',n:'Monique V.',r:'QA'},{i:'LT',n:'Liam Torres',r:'Senior · Data Engineer',accent:true},{i:'AR',n:'Ana Ribeiro',r:'Consultant · BA'}],
+    clientTeam:[{i:'JR',n:'James Russo',r:'CTO · Sponsor'},{i:'NP',n:'Nina Park',r:'Data Lead'}],
+    docs:[{n:'Technical Architecture — Lakehouse',sub:'Core reference · 34 internal references',c:'var(--accent)'},{n:'Go-Live Runbook',sub:'Deployment plan + rollback',c:'#3B82F6'},{n:'UAT Test Results',sub:'14 edge cases resolved',c:'#8B5CF6'}],
+    allocNeeds:[]
+  },
+  meridian: {
+    name:'Meridian Logistics — Supply Chain Optimisation',status:'flagged',statusLabel:'Flagged',
+    partner:'Winsome C.',qa:'Jonathan K.',team:['miguel'],teamDisplay:'Miguel S., +1',started:'Feb 2026',
+    desc:'End-to-end supply chain visibility for a national logistics provider. Client communication has dropped — V-Brain has flagged for review.',
+    updated:'Updated 14d ago',
+    timeline:[
+      {date:'22 May',type:'risk',title:'Client communication dropped 60%',desc:'No client-initiated contact in 12 days. Previous cadence: 3–4/week. V-Brain auto-flagged.',source:'Communication frequency analysis'},
+      {date:'18 May',type:'milestone',title:'Process maps delivered to client',desc:'Elena completed 40 process maps. Delivered via email — no acknowledgement.',source:'Email send log'},
+      {date:'5 May',type:'decision',title:'Scope narrowed to distribution only',desc:'Client deferred procurement to Q4. Budget reallocation pending.',source:'Partner meeting notes'},
+      {date:'28 Apr',type:'personnel',title:'Elena Morales rolled off',desc:'BA deliverables complete. No replacement. Miguel continuing solo.',source:'Allocation sheet'}
+    ],
+    health:{
+      delivery:{pct:55,color:'#B8860B',label:'Behind plan — scope change created ambiguity',details:[{l:'Process mapping',v:'Delivered (Elena)'},{l:'Efficiency analysis',v:'In progress (Miguel, solo)'},{l:'Implementation roadmap',v:'Not started — blocked'},{l:'Client sign-off',v:'Pending (no response)'}]},
+      utilisation:{pct:70,color:'#B8860B',label:'Team reduced',details:[{l:'Miguel Santos',v:'70% — underutilised'}]},
+      comms:{pct:30,color:'#EF4444',label:'Critical — no client contact in 14 days',details:[{l:'Last email',v:'22 May (no reply)'},{l:'Last call',v:'18 May'},{l:'Missed meetings',v:'2 (client no-shows)'},{l:'Sentiment',v:'Unclear'}]},
+      risk:{value:'3',color:'#EF4444',label:'Multiple risks requiring partner intervention.',details:[{l:'Client disengagement',v:'14 days no contact'},{l:'Solo consultant',v:'Miguel alone'},{l:'Scope ambiguity',v:'Procurement deferral undocumented'}]}
+    },
+    internalTeam:[{i:'WC',n:'Winsome C.',r:'Partner'},{i:'JK',n:'Jonathan K.',r:'QA'},{i:'MS',n:'Miguel Santos',r:'Consultant'}],
+    clientTeam:[{i:'TB',n:'Tom Bradley',r:'COO · Sponsor'},{i:'LK',n:'Lisa Kim',r:'Head of Logistics'}],
+    docs:[{n:'Supply Chain Process Maps (40)',sub:'Delivered 18 May · Awaiting feedback',c:'var(--accent)'},{n:'Scope Revision — Distribution',sub:'Needs sign-off',c:'#B8860B'},{n:'Warehouse Observation Notes',sub:'3 sites · Apr–May',c:'var(--text-4)'}],
+    allocNeeds:[]
+  },
+  harbour: {
+    name:'Harbour Group — Operating Model Redesign',status:'winding',statusLabel:'Winding Down',
+    partner:'Carol M.',qa:'Priscila B.',team:['david','jess'],teamDisplay:'David L., Jess W.',started:'Jan 2026',
+    desc:'Operating model redesign for a mid-market industrial conglomerate. Final deliverables due mid-July. Two consultants freeing up in ~3 weeks.',
+    updated:'Updated 3d ago',
+    timeline:[
+      {date:'1 Jun',type:'milestone',title:'Board presentation delivered',desc:'David presented the new model. Board approved with minor governance adjustments.',source:'Partner debrief, board recording'},
+      {date:'28 May',type:'update',title:'Change adoption at 92%',desc:'Jess\'s program achieved 92% employee adoption — exceeds 80% target.',source:'Employee survey results'},
+      {date:'15 May',type:'decision',title:'Handover plan agreed',desc:'Client self-manages post June 25. KT sessions Jun 9 and Jun 16.',source:'Partner call with CEO'},
+      {date:'5 May',type:'update',title:'Governance framework finalised',desc:'5-layer governance documented. Client leadership trained.',source:'Deliverable log'}
+    ],
+    health:{
+      delivery:{pct:92,color:'var(--accent)',label:'Near-complete — final handover',details:[{l:'Operating model',v:'Board approved'},{l:'Change management',v:'92% adoption'},{l:'Governance',v:'Finalised'},{l:'Knowledge transfer',v:'2 weeks remaining'}]},
+      utilisation:{pct:75,color:'var(--accent)',label:'Winding down',details:[{l:'David Lee',v:'72%'},{l:'Jess Wang',v:'78%'}]},
+      comms:{pct:80,color:'var(--accent)',label:'Weekly CEO check-ins',details:[{l:'Calls (2 wks)',v:'3 + 1 ad-hoc'},{l:'Relationship',v:'Strong — CEO praised the work'}]},
+      risk:{value:'0',color:'var(--accent)',label:'No risks. Clean wind-down.',details:[{l:'Handover',v:'Low risk'},{l:'Dependency',v:'Self-sustaining post Jun 25'}]}
+    },
+    internalTeam:[{i:'CM',n:'Carol M.',r:'Partner'},{i:'PB',n:'Priscila B.',r:'QA'},{i:'DL',n:'David Lee',r:'Senior · Ops Lead',accent:true},{i:'JW',n:'Jess Wang',r:'Consultant · Change Mgmt'}],
+    clientTeam:[{i:'RH',n:'Robert Huang',r:'CEO'},{i:'SK',n:'Sandra Kim',r:'COO'}],
+    docs:[{n:'Operating Model Blueprint (Final)',sub:'Board-approved · 68 references',c:'var(--accent)'},{n:'Change Adoption Report',sub:'92% — exceeds target',c:'#3B82F6'},{n:'Governance Framework',sub:'5-layer · Client trained',c:'#8B5CF6'},{n:'KT Schedule',sub:'Jun 9–20 · 8 sessions',c:'var(--text-4)'}],
+    allocNeeds:[]
+  }
+},
+// ── ARCHIVED PROJECTS ──────────────────────────────────────────────────
+archivedProjects: {
+  summit: {name:'Summit Health — Patient Data Migration',status:'completed',statusLabel:'Completed',partner:'Priscila B.',qa:'Monique V.',teamDisplay:'Liam T., +1',started:'Sep 2025',ended:'Jan 2026',desc:'Migrated 3 on-prem SQL Server databases to Snowflake. Optimised query performance — avg dashboard query time from 45s to 3s.',updated:'Completed Jan 2026'},
+  velocity: {name:'Velocity Retail — ETL Pipeline Audit',status:'completed',statusLabel:'Completed',partner:'Jonathan K.',qa:'Winsome C.',teamDisplay:'Liam T.',started:'Mar 2025',ended:'Apr 2025',desc:'Comprehensive audit of the existing ETL pipeline. Developed a validation framework that reduced data quality incidents by 80% post-deployment.',updated:'Completed Apr 2025'},
+  crestline: {name:'Crestline Manufacturing — Org Design & Digital Roadmap',status:'completed',statusLabel:'Completed',partner:'Carol M.',qa:'Jonathan K.',teamDisplay:'David L., Sarah C., Elena M.',started:'Mar 2025',ended:'Dec 2025',desc:'Organisational redesign for the manufacturing division (management layers 7→5) plus digital transformation roadmap with gap analysis across 6 departments.',updated:'Completed Dec 2025'},
+  apex: {name:'Apex Telecom — Data Lake & Product Roadmap',status:'completed',statusLabel:'Completed',partner:'Priscila B.',qa:'Monique V.',teamDisplay:'Kira W., Ana R.',started:'May 2025',ended:'Jan 2026',desc:'Built Kafka-to-S3 data lake ingestion layer and supported product roadmap development with competitive analysis and user story mapping.',updated:'Completed Jan 2026'},
+  verdant: {name:'Verdant Energy — Strategy Engagement',status:'completed',statusLabel:'Completed',partner:'Winsome C.',qa:'Carol M.',teamDisplay:'Raj P., +2',started:'Apr 2025',ended:'Aug 2025',desc:'Strategic advisory for energy transition planning. Competitive landscape analysis, stakeholder interviews, and go-to-market recommendations.',updated:'Completed Aug 2025'}
+},
+allocOpenProjects:[{id:'atlas',needs:'1× Senior Data Engineer, 1× Business Analyst',start:'16 Jun',deadline:'12 days',openCount:2}],
+notifications:[
+  {type:'risk',text:'Client communication on <strong>Meridian Logistics</strong> has dropped 60% over 2 weeks.',time:'2 hours ago'},
+  {type:'allocation',text:'<strong>Atlas Bank</strong> end date may shift — scope extension in partner call. 2 downstream allocations affected.',time:'5 hours ago'},
+  {type:'update',text:'<strong>Harbour Group</strong> board approved operating model. 92% change adoption.',time:'Yesterday'}
+],
+forecastCurrent:{available:7,freeingUp:12,demand:9,net:'+10',rows:[{label:'Seniors',supply:65,demand:50,nums:'8 / 6'},{label:'Managers',supply:35,demand:55,nums:'4 / 6'},{label:'Consultants',supply:80,demand:40,nums:'10 / 5'}]},
+forecastHistory:[{week:'Apr W3',fc:65,ac:50,d:'−2',cls:'fh-neg'},{week:'Apr W4',fc:55,ac:60,d:'0',cls:'fh-ok'},{week:'May W1',fc:75,ac:55,d:'−3',cls:'fh-neg'},{week:'May W2',fc:50,ac:55,d:'+1',cls:'fh-pos'},{week:'May W3',fc:70,ac:75,d:'+1',cls:'fh-pos'},{week:'May W4',fc:80,ac:60,d:'−3',cls:'fh-neg'}]
+};
+
+/* ========================================================================== */
+let state={screen:'dashboard',project:'atlas',consultant:'liam',fitModal:null,archiveOpen:false,newProjOpen:false,newProjStep:0,newProjData:{}};
+function go(screen,opts){return(e)=>{if(e)e.stopPropagation();if(opts?.project)state.project=opts.project;if(opts?.consultant)state.consultant=opts.consultant;state.screen=screen;state.fitModal=null;state.archiveOpen=false;state.newProjOpen=false;render();window.scrollTo({top:0,behavior:'smooth'})}}
+function render(){const app=document.getElementById('app');app.innerHTML='';app.appendChild(renderNav());app.appendChild(renderNotifPanel());app.appendChild(renderArchivePanel());const screens={dashboard:renderDashboard,project:renderProjectView,'alloc-list':renderAllocList,'alloc-detail':renderAllocDetail,profile:renderProfile};const s=(screens[state.screen]||renderDashboard)();s.classList.add('screen','active');app.appendChild(s);if(state.fitModal)app.appendChild(renderFitModal(state.fitModal));if(state.newProjOpen)app.appendChild(renderNewProjectModal());document.addEventListener('click',()=>{const np=document.getElementById('np');if(np)np.classList.remove('on');const ap=document.getElementById('archPanel');if(ap)ap.classList.remove('on')},{once:true})}
+
+const ICO={
+  search:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+  back:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>',
+  arrow:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>',
+  chev:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>',
+  bell:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
+  plus:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  archive:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>',
+  doc:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="COLOUR" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+  users:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  pulse:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+  book:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+  grid:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>',
+  warn:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  mail:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
+  phone:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg>',
+  loc:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+  x:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  upload:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'
+};
+function mkAvatar(i,x){return`<div class="av ${x||''}">${i}</div>`}
+function mkBadge(s){const m={active:'badge-active',flagged:'badge-flagged',winding:'badge-winding',completed:'badge-completed'};return`<span class="badge ${m[s]||''}"><span class="badge-dot"></span> ${({active:'Active',flagged:'Flagged',winding:'Winding Down',completed:'Completed'})[s]||s}</span>`}
+function mkSkel(){return'<div class="sk h20 w60"></div><div class="sk w100"></div><div class="sk w90"></div><div class="sk w80"></div><div style="height:12px"></div><div class="sk w70"></div><div class="sk w100"></div><div class="sk w60"></div>'}
+function fitColor(v){return v>=80?'var(--accent)':v>=65?'#B8860B':'#EF4444'}
+function fitCls(v){return v>=80?'fit-hi':'fit-md'}
+
+/* NAV */
+function renderNav(){const n=document.createElement('nav');n.className='topnav';n.innerHTML=`<div class="topnav-logo" id="navHome"><div class="brain-dot"></div><span><span class="v">V</span>-brain</span></div><div class="topnav-right"><div class="notif-btn" id="notifToggle">${ICO.bell}<span class="notif-badge">${DATA.notifications.length}</span></div><div class="avatar">SS</div></div>`;setTimeout(()=>{document.getElementById('navHome').onclick=go('dashboard');document.getElementById('notifToggle').onclick=(e)=>{e.stopPropagation();document.getElementById('np')?.classList.toggle('on');document.getElementById('archPanel')?.classList.remove('on')}},0);return n}
+function renderNotifPanel(){const d=document.createElement('div');d.className='np';d.id='np';d.innerHTML=`<div class="np-hd"><span>Notifications</span><span style="font-size:11px;color:var(--accent);cursor:pointer;font-weight:500">Mark all read</span></div>`+DATA.notifications.map(n=>`<div class="np-item"><div class="np-type np-${n.type==='allocation'?'alloc':n.type==='update'?'upd':n.type}">${n.type}</div><div class="np-txt">${n.text}</div><div class="np-time">${n.time}</div></div>`).join('');d.onclick=e=>e.stopPropagation();return d}
+function renderArchivePanel(){const d=document.createElement('div');d.className='archive-panel';d.id='archPanel';d.innerHTML=`<div class="np-hd"><span>Archived Projects</span><span style="font-size:11px;color:var(--text-4)">${Object.keys(DATA.archivedProjects).length} projects</span></div>`;Object.entries(DATA.archivedProjects).forEach(([pid,p])=>{d.innerHTML+=`<div class="np-item" style="padding:16px 20px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">${mkBadge(p.status)}<span style="font-size:10px;color:var(--text-4)">${p.updated}</span></div><div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px">${p.name}</div><div style="font-size:12px;color:var(--text-3);margin-bottom:4px"><b style="font-weight:500;color:var(--text-2)">Partner:</b> ${p.partner} · <b style="font-weight:500;color:var(--text-2)">Team:</b> ${p.teamDisplay}</div><div style="font-size:12px;line-height:1.5;color:var(--text-4)">${p.desc}</div></div>`});d.onclick=e=>e.stopPropagation();return d}
+
+/* DASHBOARD */
+function renderDashboard(){
+  const s=document.createElement('div'),shell=document.createElement('div');shell.className='shell';
+  shell.innerHTML=`<div class="dash-topbar"><div class="search-bar">${ICO.search}<input type="text" placeholder="Search projects by name, description, client…" id="dashQ"></div><div class="icon-btn" id="archBtn">${ICO.archive}</div><div class="add-btn" id="newProjBtn">${ICO.plus} New project</div></div><div class="section-label">Active Projects</div><div id="pList"></div><div class="section-label" style="margin-top:36px">V-Brain Suite</div><div class="suite-grid"><div class="suite-tile on" id="goAlloc"><div class="s-icon">${ICO.users}</div><div class="s-name">V-Allocate</div></div><div class="suite-tile off"><span class="s-badge">Soon</span><div class="s-icon">${ICO.pulse}</div><div class="s-name">V-Insight</div></div><div class="suite-tile off"><span class="s-badge">Soon</span><div class="s-icon">${ICO.book}</div><div class="s-name">V-Develop</div></div><div class="suite-tile off"><span class="s-badge">Soon</span><div class="s-icon">${ICO.grid}</div><div class="s-name">V-Deliver</div></div></div>`;
+  s.appendChild(shell);
+  setTimeout(()=>{
+    document.getElementById('goAlloc').onclick=go('alloc-list');
+    document.getElementById('archBtn').onclick=(e)=>{e.stopPropagation();document.getElementById('archPanel')?.classList.toggle('on');document.getElementById('np')?.classList.remove('on')};
+    document.getElementById('newProjBtn').onclick=(e)=>{e.stopPropagation();state.newProjOpen=true;state.newProjStep=0;state.newProjData={skills:[]};render()};
+    const list=document.getElementById('pList');
+    function drawProjects(q){list.innerHTML='';const query=(q||'').toLowerCase();let found=false;
+      // Sort: title matches first, then description matches
+      const entries=Object.entries(DATA.projects);
+      if(query){entries.sort(([,a],[,b])=>{const aT=a.name.toLowerCase().includes(query)?0:1;const bT=b.name.toLowerCase().includes(query)?0:1;return aT-bT})}
+      entries.forEach(([pid,p])=>{if(query&&!p.name.toLowerCase().includes(query)&&!p.desc.toLowerCase().includes(query))return;found=true;
+        const card=document.createElement('div');card.className='p-card';card.onclick=go('project',{project:pid});
+        card.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">${mkBadge(p.status)}</div><div class="p-info"><div class="p-name">${p.name}</div><div class="p-meta"><span><b>Partner:</b> ${p.partner}</span><span><b>QA:</b> ${p.qa}</span><span><b>Team:</b> ${p.teamDisplay}</span></div><div class="p-desc">${p.desc}</div></div><div class="p-right"><div class="p-updated">${p.updated}</div><span class="p-arrow">${ICO.arrow}</span></div>`;
+        list.appendChild(card)});
+      if(!found)list.innerHTML='<div style="padding:40px;text-align:center;color:var(--text-4)">No projects match your search.</div>'}
+    drawProjects('');document.getElementById('dashQ').oninput=(e)=>drawProjects(e.target.value)},0);
+  return s}
+
+/* PROJECT VIEW */
+function renderProjectView(){
+  const p=DATA.projects[state.project];if(!p)return document.createElement('div');
+  const s=document.createElement('div'),shell=document.createElement('div');shell.className='shell';
+  shell.innerHTML=`<div class="hdr"><div class="back-btn" id="pBack">${ICO.back}</div><div class="hdr-title">${p.name}</div>${mkBadge(p.status)}</div><div class="hdr-sub">Partner: ${p.partner} · QA: ${p.qa} · Team: ${p.teamDisplay} · Started ${p.started}</div>`;
+  const tabNames=['Timeline','Get Up to Speed','Project Health','Stakeholders','Knowledge Base'],tabIds=['tl','gus','health','stak','kb'];
+  let tbH='<div class="tab-bar">';tabNames.forEach((t,i)=>{tbH+=`<div class="tab${i===0?' on':''}" data-tab="${tabIds[i]}">${t}</div>`});tbH+='</div>';shell.innerHTML+=tbH;
+  // Timeline
+  const fTypes=[{k:'all',l:'All'},{k:'decision',l:'Decisions'},{k:'milestone',l:'Milestones'},{k:'risk',l:'Risks'},{k:'update',l:'Updates'},{k:'personnel',l:'Personnel'}];
+  let tlH=`<div class="tc on" id="tc-tl"><div class="tl-filters" id="tlF">`;fTypes.forEach(f=>{tlH+=`<div class="chip${f.k==='all'?' on':''}" data-filter="${f.k}">${f.l}</div>`});tlH+=`</div><div id="tlList"></div></div>`;shell.innerHTML+=tlH;
+  // Get Up to Speed
+  const briefs=[{n:1,t:'What is this project?',sub:'Client, scope, objectives'},{n:2,t:'What\'s happened so far?',sub:'Key events, synthesised narrative'},{n:3,t:'What do I need to do?',sub:'Role-specific context, immediate actions'}];
+  let gH='<div class="tc" id="tc-gus">';briefs.forEach((b,i)=>{gH+=`<div class="brief${i===0?' open':''}"><div class="brief-hd"><div class="brief-left"><div class="brief-num">${b.n}</div><div><div class="brief-t">${b.t}</div><div class="brief-st">${b.sub}</div></div></div><span class="brief-chev">${ICO.chev}</span></div><div class="brief-bd"><div class="brief-inner">${mkSkel()}</div></div></div>`});gH+='</div>';shell.innerHTML+=gH;
+  // Health
+  function hCard(label,d,isR){let det='';if(d.details)det='<div class="h-detail">'+d.details.map(r=>`<div class="h-drow"><span class="h-dl">${r.l}</span><span class="h-dv">${r.v}</span></div>`).join('')+'</div>';if(isR)return`<div class="h-card"><div class="h-label">${label}</div><div style="display:flex;align-items:center;gap:10px;margin-top:8px"><div class="h-val" style="color:${d.color}">${d.value}</div><div class="h-sub" style="margin:0">${d.label}</div></div>${det}</div>`;return`<div class="h-card"><div class="h-label">${label}</div><div class="h-bar-t"><div class="h-bar-f" style="width:${d.pct}%;background:${d.color}"></div></div><div class="h-val" style="color:${d.color}">${d.pct}%</div><div class="h-sub">${d.label}</div>${det}</div>`}
+  shell.innerHTML+=`<div class="tc" id="tc-health"><div class="h-grid">${hCard('Delivery Against Plan',p.health.delivery)}${hCard('Team Utilisation',p.health.utilisation)}${hCard('Client Communication',p.health.comms)}${hCard('Risk Signals',p.health.risk,true)}</div></div>`;
+  // Stakeholders
+  shell.innerHTML+=`<div class="tc" id="tc-stak"><div class="st-grid"><div><div class="st-label">Internal Team</div>${p.internalTeam.map(s=>`<div class="st-card">${mkAvatar(s.i,s.accent?'av-accent':'')} <div><div class="st-name">${s.n}</div><div class="st-role">${s.r}</div></div></div>`).join('')}</div><div><div class="st-label">Client Side</div>${p.clientTeam.map(s=>`<div class="st-card">${mkAvatar(s.i,'av-blue')} <div><div class="st-name">${s.n}</div><div class="st-role">${s.r}</div></div></div>`).join('')}<div style="margin-top:16px;padding:12px 16px;border-radius:var(--r-md);background:var(--surface-2);border:1px dashed var(--border)"><div style="font-size:11px;color:var(--text-4);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Communication Pattern</div><div style="width:100%;height:80px;border-radius:8px;background:linear-gradient(90deg,var(--surface-3) 0%,var(--border-light) 50%,var(--surface-3) 100%);background-size:400px 80px;animation:shimmer 1.8s infinite linear"></div></div></div></div></div>`;
+  // Knowledge Base
+  shell.innerHTML+=`<div class="tc" id="tc-kb"><div class="section-label">Key Documents</div><div style="display:flex;flex-direction:column;gap:8px">${p.docs.map(d=>`<div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-md);cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm)" onmouseover="this.style.borderColor='var(--border)'" onmouseout="this.style.borderColor='var(--border-light)'">${ICO.doc.replace('COLOUR',d.c)}<div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">${d.n}</div><div style="font-size:11px;color:var(--text-4)">${d.sub}</div></div></div>`).join('')}</div></div>`;
+  s.appendChild(shell);
+  setTimeout(()=>{document.getElementById('pBack').onclick=go('dashboard');
+    shell.querySelectorAll('.tab').forEach(tb=>{tb.onclick=()=>{shell.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));tb.classList.add('on');shell.querySelectorAll('.tc').forEach(x=>x.classList.remove('on'));document.getElementById('tc-'+tb.dataset.tab)?.classList.add('on')}});
+    shell.querySelectorAll('.brief-hd').forEach(h=>{h.onclick=()=>h.closest('.brief').classList.toggle('open')});
+    function drawTL(filter){const el=document.getElementById('tlList');el.innerHTML='';const items=filter==='all'?p.timeline:p.timeline.filter(e=>e.type===filter);items.forEach((ev,i)=>{el.innerHTML+=`<div class="tl-item"><div class="tl-date">${ev.date}</div><div class="tl-dot-col"><div class="tl-dot dot-${ev.type}"></div>${i<items.length-1?'<div class="tl-line"></div>':''}</div><div class="tl-body"><span class="tl-tag tag-${ev.type}">${ev.type}</span><div class="tl-title">${ev.title}</div><div class="tl-desc">${ev.desc}</div><div class="tl-source">Inferred from: ${ev.source}</div></div></div>`});if(!items.length)el.innerHTML='<div style="padding:30px;text-align:center;color:var(--text-4)">No events of this type.</div>'}
+    drawTL('all');document.getElementById('tlF').querySelectorAll('.chip').forEach(c=>{c.onclick=()=>{document.getElementById('tlF').querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');drawTL(c.dataset.filter)}})},0);
+  return s}
+
+/* ALLOC LIST */
+function renderAllocList(){
+  const s=document.createElement('div'),shell=document.createElement('div');shell.className='shell';
+  shell.innerHTML=`<div class="hdr"><div class="back-btn" id="alBack">${ICO.back}</div><div class="hdr-title" style="font-size:22px">V-Allocate</div></div><div class="hdr-sub">Open allocations and firmwide capacity</div>`;
+  DATA.allocOpenProjects.forEach(ap=>{const pData=DATA.projects[ap.id];const name=pData?pData.name:ap.id;const has=pData&&pData.allocNeeds&&pData.allocNeeds.length>0;
+    shell.innerHTML+=`<div class="al-card" data-pid="${ap.id}" ${has?'data-click="1"':''}><div class="al-bar"></div><div style="display:flex;align-items:center;gap:16px"><div><div class="al-name">${name}</div><div class="al-needs">Needs: ${ap.needs} · Start: ${ap.start}</div></div></div><div class="al-right"><div class="al-deadline">${ap.deadline}</div><div class="al-count">${ap.openCount} open</div>${ICO.arrow.replace('currentColor','var(--text-4)')}</div></div>`});
+  // Forecast
+  const fc=DATA.forecastCurrent,fh=DATA.forecastHistory;
+  shell.innerHTML+=`<div style="margin-top:36px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div class="section-label" style="margin:0">Capacity Forecast</div><div class="f-toggle"><div class="f-btn on" data-fv="fc">Current</div><div class="f-btn" data-fv="fh">Past vs Actual</div></div></div><div class="f-view on" id="fv-fc"><div style="padding:24px;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)"><div style="display:flex;gap:16px;margin-bottom:20px">${[{l:'Available Now',v:fc.available,c:'var(--accent)'},{l:'Freeing Up (4 wks)',v:fc.freeingUp,c:'var(--teal)'},{l:'Demand (4 wks)',v:fc.demand,c:'var(--text)'},{l:'Net Position',v:fc.net,c:'var(--accent)'}].map(b=>`<div style="flex:1;text-align:center;padding:16px 10px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--border-light)"><div style="font-size:10px;color:var(--text-4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">${b.l}</div><div style="font-size:28px;font-weight:700;color:${b.c}">${b.v}</div></div>`).join('')}</div><div style="font-size:12px;font-weight:600;color:var(--text-3);margin-bottom:12px">Supply vs Demand by Seniority</div>${fc.rows.map(r=>`<div class="cap-row"><div class="cap-lbl">${r.label}</div><div class="cap-trk"><div class="cap-supply" style="width:${r.supply}%"></div><div class="cap-demand" style="width:${r.demand}%"></div></div><div class="cap-num">${r.nums}</div></div>`).join('')}<div style="display:flex;gap:14px;margin-top:14px;justify-content:flex-end"><div style="display:flex;align-items:center;gap:5px"><div style="width:14px;height:6px;border-radius:3px;background:var(--grad-accent);opacity:.7"></div><span style="font-size:10px;color:var(--text-4)">Supply</span></div><div style="display:flex;align-items:center;gap:5px"><div style="width:14px;height:6px;border-radius:3px;background:rgba(239,68,68,.15);border-right:2px solid #EF4444"></div><span style="font-size:10px;color:var(--text-4)">Demand</span></div></div></div></div>`;
+  shell.innerHTML+=`<div class="f-view" id="fv-fh"><div style="padding:24px;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)"><div style="font-size:13px;font-weight:600;margin-bottom:16px;color:var(--text)">Forecast Accuracy — Last 6 Weeks</div>${fh.map(r=>`<div class="fh-row"><div class="fh-lbl">${r.week}</div><div class="fh-bars"><div class="fh-bar fh-fc" style="width:${r.fc}%"><span>Forecast</span></div><div class="fh-bar fh-ac" style="width:${r.ac}%"><span>Actual</span></div></div><div class="fh-d ${r.cls}">${r.d}</div></div>`).join('')}<div style="display:flex;gap:16px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border-light)"><div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:4px;border-radius:2px;background:var(--accent)"></div><span style="font-size:11px;color:var(--text-3)">Forecasted</span></div><div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:4px;border-radius:2px;background:var(--teal-mid)"></div><span style="font-size:11px;color:var(--text-3)">Actual</span></div><div style="flex:1;text-align:right;font-size:11px;color:var(--text-4)">Avg accuracy: 82%</div></div></div></div></div>`;
+  // Alloc table
+  shell.innerHTML+=`<div style="margin-top:36px"><div class="section-label">Current Allocations</div><div style="background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm)"><div class="at-hd"><div>Consultant</div><div>Current Project</div><div>Role</div><div>Free In</div><div>Available</div></div><div id="allocRows"></div></div></div>`;
+  s.appendChild(shell);
+  setTimeout(()=>{document.getElementById('alBack').onclick=go('dashboard');
+    shell.querySelectorAll('.al-card[data-click]').forEach(c=>{c.onclick=go('alloc-detail',{project:c.dataset.pid})});
+    shell.querySelectorAll('.f-btn').forEach(btn=>{btn.onclick=()=>{shell.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');shell.querySelectorAll('.f-view').forEach(v=>v.classList.remove('on'));document.getElementById('fv-'+btn.dataset.fv)?.classList.add('on')}});
+    const tbody=document.getElementById('allocRows');Object.entries(DATA.consultants).forEach(([cid,c])=>{const row=document.createElement('div');row.className='at-row';row.onclick=go('profile',{consultant:cid});const proj=c.currentProject||c.currentProjectLabel;const pS=!c.currentProject?'color:var(--accent);font-style:italic':'';row.innerHTML=`<div class="at-name">${mkAvatar(c.initials)} <span>${c.name}</span></div><div class="at-proj" style="${pS}">${proj}</div><div class="at-role">${c.currentRole}</div><div><span class="free ${c.freeBadge}">${c.freeIn}</span></div><div class="at-date">${c.freeDate}</div>`;tbody.appendChild(row)})},0);
+  return s}
+
+/* ALLOC DETAIL */
+function renderAllocDetail(){
+  const p=DATA.projects[state.project];if(!p||!p.allocNeeds.length)return document.createElement('div');
+  const s=document.createElement('div'),shell=document.createElement('div');shell.className='shell';
+  shell.innerHTML=`<div class="hdr"><div class="back-btn" id="adBack">${ICO.back}</div><div class="hdr-title" style="font-size:20px">${p.name.split('—')[0]}— Allocation</div><div class="al-count" style="margin-left:10px">${p.allocNeeds.length} role${p.allocNeeds.length>1?'s':''}</div></div><div class="hdr-sub">${p.allocNeeds.map(n=>n.role).join(' | ')}</div>`;
+  let demH='<div class="panel"><div class="panel-t">Project Requirements</div>';
+  p.allocNeeds.forEach((need,i)=>{if(i>0)demH+='<div style="height:1px;background:var(--border-light);margin:16px 0"></div>';demH+=`<div><div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:12px">Role ${i+1}: ${need.role}</div><div class="rr"><span class="rr-l">Seniority</span><span class="rr-v">${need.seniority}</span></div><div class="rr"><span class="rr-l">Duration</span><span class="rr-v">${need.duration}</span></div><div class="rr"><span class="rr-l">Skills</span><span class="rr-v">${need.skills.map(sk=>`<span class="stag">${sk}</span>`).join('')}</span></div><div class="rr"><span class="rr-l">Persona</span><span class="rr-v">${need.persona}</span></div><div class="rr"><span class="rr-l">Partner Notes</span><span class="rr-v" style="color:var(--text-3);font-style:italic;font-size:12px">${need.notes}</span></div></div>`});demH+='</div>';
+  let supH='<div class="panel"><div class="panel-t">Recommended Consultants</div>';
+  p.allocNeeds.forEach((need,ni)=>{if(ni>0)supH+='<div style="height:1px;background:var(--border-light);margin:18px 0"></div>';supH+=`<div style="font-size:11px;font-weight:600;color:var(--text-4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">For: ${need.role}</div>`;need.recs.forEach(rec=>{const c=DATA.consultants[rec.id];if(!c)return;const aL=c.freeIn==='Now'?'Available now':`Ending in ${c.freeIn}`;const aC=c.freeBadge==='free-now'?'cc-avail':'cc-ending';supH+=`<div class="cc" data-cid="${rec.id}" data-ni="${ni}" data-ri="${need.recs.indexOf(rec)}"><div class="cc-top"><div class="cc-nr">${mkAvatar(c.initials,'av-accent')}<div><div class="cc-name">${c.name}</div><span class="cc-stat ${aC}">${aL}</span></div></div><div class="cc-fit ${fitCls(rec.fit)}">${rec.fit}%</div></div><div class="fb-t"><div class="fb-f" style="width:${rec.fit}%;background:${fitColor(rec.fit)}"></div></div><div class="cc-reason">${rec.reasoning}</div><div class="cc-link" data-fitopen="1">View full breakdown →</div></div>`})});supH+='</div>';
+  shell.innerHTML+=`<div class="panels">${demH}${supH}</div>`;s.appendChild(shell);
+  setTimeout(()=>{document.getElementById('adBack').onclick=go('alloc-list');shell.querySelectorAll('.cc').forEach(card=>{card.onclick=(e)=>{if(e.target.closest('[data-fitopen]')){const ni=parseInt(card.dataset.ni),ri=parseInt(card.dataset.ri);const need=p.allocNeeds[ni],rec=need.recs[ri];state.fitModal={rec,need,consultant:DATA.consultants[rec.id]};render();return}go('profile',{consultant:card.dataset.cid})()}})},0);
+  return s}
+
+/* CONSULTANT PROFILE */
+function renderProfile(){
+  const c=DATA.consultants[state.consultant];if(!c)return document.createElement('div');
+  const s=document.createElement('div'),shell=document.createElement('div');shell.className='shell';
+  shell.innerHTML=`<div class="hdr"><div class="back-btn" id="prBack">${ICO.back}</div><div style="display:flex;align-items:center;gap:14px">${mkAvatar(c.initials,'av-accent')}<div><div class="hdr-title" style="margin-bottom:2px">${c.name}</div><div style="font-size:13px;color:var(--text-3)">${c.seniority} · ${c.specialty} · Joined ${c.joined}</div></div></div></div>`;
+  // Contact row
+  shell.innerHTML+=`<div style="display:flex;gap:14px;margin:14px 0 24px 50px">${[{ico:ICO.mail,v:c.email},{ico:ICO.phone,v:c.phone},{ico:ICO.loc,v:c.location}].map(x=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-3)">${x.ico} ${x.v}</div>`).join('')}</div>`;
+  const tabs=['Overview','Skills & Persona','Past Projects','Satisfaction & Fit'],tids=['ov','sk','pp','sf'];
+  let tbH='<div class="tab-bar">';tabs.forEach((t,i)=>{tbH+=`<div class="tab${i===0?' on':''}" data-ptab="${tids[i]}">${t}</div>`});tbH+='</div>';shell.innerHTML+=tbH;
+
+  // OVERVIEW TAB
+  let ovH=`<div class="ptab on" id="pt-ov"><div style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><div style="padding:22px;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">About</div><div style="font-size:13px;line-height:1.7;color:var(--text-2);margin-bottom:14px">${c.bio}</div><div style="font-size:13px;line-height:1.7;color:var(--text-3)">${c.bio2}</div><div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:6px">${c.interests.map(i=>`<span class="ov-int">${i}</span>`).join('')}</div></div><div><div style="padding:22px;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);margin-bottom:14px"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">Key Metrics</div>`;
+  ovH+=`<div class="ov-row"><span style="color:var(--text-4)">${ICO.loc}</span> ${c.location} · ${c.travel}</div>`;
+  ovH+=`<div class="ov-row"><span style="color:var(--text-4)">📊</span> Utilisation: <strong style="color:var(--accent)">${c.utilisation}%</strong></div>`;
+  ovH+=`<div class="ov-row"><span style="color:var(--text-4)">⭐</span> Satisfaction: <strong style="color:var(--accent)">${c.satisfaction}/5</strong></div>`;
+  ovH+=`<div class="ov-row"><span style="color:var(--text-4)">🎯</span> Career: <span style="color:${c.careerAlign==='Strong'?'var(--accent)':'#B8860B'}">${c.careerAlign}</span> — ${c.careerNote}</div>`;
+  ovH+=`<div class="ov-row"><span style="color:var(--text-4)">👤</span> Mentor: ${c.mentor}</div></div>`;
+  ovH+=`<div style="padding:22px;background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">Top Skills</div>${c.topSkills.map(sk=>`<div class="ov-sk"><span class="stag" style="border-color:${sk.color==='accent'?'var(--accent)':'var(--teal)'};color:${sk.color==='accent'?'var(--accent)':'var(--teal)'}">${sk.name}</span><span class="ov-sn">${sk.note}</span></div>`).join('')}</div></div></div></div>`;shell.innerHTML+=ovH;
+
+  // SKILLS & PERSONA TAB
+  let skH=`<div class="ptab" id="pt-sk"><div style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><div style="background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow-sm)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">Skills — Evidence Based</div>`;
+  c.skills.forEach(sk=>{skH+=`<div class="skd"><div class="skd-hd"><span class="stag" style="border-color:${sk.color==='accent'?'var(--accent)':'var(--teal)'};color:${sk.color==='accent'?'var(--accent)':'var(--teal)'}">${sk.name}</span></div><div class="skd-ev">${sk.evidence.map(e=>`<div class="skd-ei"><div class="skd-ep">${e.project}</div><div class="skd-ed">${e.desc}</div></div>`).join('')}</div></div>`});
+  skH+=`</div><div style="background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow-sm)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">Persona Profile</div>`;
+  const pm=c.persona;skH+=Object.entries(pm).map(([k,v])=>`<div class="pr"><span class="pr-l">${({style:'Working Style',comms:'Communication',stakeholder:'Stakeholder Mgmt',team:'Team Role',ramp:'Ramp-Up Speed'})[k]||k}</span><span class="pr-v">${v}</span></div>`).join('');
+  if(c.personaEvidence&&c.personaEvidence.length){skH+=`<div style="margin-top:18px;font-size:12px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">Evidence</div>`;c.personaEvidence.forEach(pe=>{skH+=`<div class="pe-block"><div class="pe-trait">${pe.trait}</div><div class="pe-items">${pe.items.map(it=>`<div class="pe-item"><div class="pe-src">${it.source}</div><div class="pe-det">${it.detail}</div></div>`).join('')}</div></div>`})}
+  skH+=`</div></div></div>`;shell.innerHTML+=skH;
+
+  // PAST PROJECTS TAB
+  let ppH=`<div class="ptab" id="pt-pp"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">${c.projects.length} Engagements</div>`;
+  c.projects.forEach(pr=>{ppH+=`<div class="ph"><div><div class="ph-dates">${pr.dates}</div><div class="ph-name">${pr.name}</div><div class="ph-role">${pr.role}</div><div style="font-size:12px;color:var(--text-3);margin-top:6px;line-height:1.5">${pr.summary}</div></div><div class="ph-right"><div class="ph-m"><div class="ph-ml">Client</div><div class="ph-mv" style="color:var(--accent)">${pr.clientRating}</div></div><div class="ph-m"><div class="ph-ml">Sat.</div><div class="ph-mv">${pr.satisfaction}</div></div></div></div>`});
+  ppH+='</div>';shell.innerHTML+=ppH;
+
+  // SATISFACTION & FIT TAB
+  let sfH=`<div class="ptab" id="pt-sf"><div style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><div style="background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow-sm)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">Satisfaction & Career</div><div class="pr"><span class="pr-l">Overall Satisfaction</span><span class="pr-v" style="color:var(--accent)">${c.satisfaction}/5</span></div><div class="pr"><span class="pr-l">Career Alignment</span><span class="pr-v" style="color:${c.careerAlign==='Strong'?'var(--accent)':'#B8860B'}">${c.careerAlign}</span></div><div class="pr"><span class="pr-l">Career Note</span><span class="pr-v">${c.careerNote}</span></div><div class="pr"><span class="pr-l">Average Fit Score</span><span class="pr-v" style="color:var(--accent)">${c.avgFit}%</span></div><div class="pr"><span class="pr-l">Utilisation</span><span class="pr-v">${c.utilisation}%</span></div></div><div style="background:var(--surface);border:1px solid var(--border-light);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow-sm)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">Fit History</div>`;
+  c.projects.forEach(pr=>{const fc=fitColor(pr.fit);sfH+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-light)"><div><div style="font-size:13px;font-weight:600;color:var(--text)">${pr.name.split('—')[0].trim()}</div><div style="font-size:11px;color:var(--text-4)">${pr.dates}</div></div><div style="font-size:18px;font-weight:700;color:${fc}">${pr.fit}%</div></div>`});
+  sfH+=`</div></div></div>`;shell.innerHTML+=sfH;
+
+  s.appendChild(shell);
+  setTimeout(()=>{document.getElementById('prBack').onclick=go('alloc-list');
+    shell.querySelectorAll('.tab').forEach(tb=>{tb.onclick=()=>{shell.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));tb.classList.add('on');shell.querySelectorAll('.ptab').forEach(x=>x.classList.remove('on'));document.getElementById('pt-'+tb.dataset.ptab)?.classList.add('on')}})},0);
+  return s}
+
+/* FIT BREAKDOWN MODAL */
+function renderFitModal(data){
+  const{rec,need,consultant:c}=data;const fb=rec.fitBreakdown;
+  const d=document.createElement('div');d.className='fm-bg on';
+  let h=`<div class="fm"><div class="fm-hdr"><div style="font-size:16px;font-weight:700;color:var(--text)">Fit Breakdown</div><div style="display:flex;gap:8px"><div class="fm-btn go" data-goto="profile">View full profile →</div><div class="fm-btn" id="fmClose">${ICO.x} Close</div></div></div><div class="fm-body">`;
+  h+=`<div class="fm-id"><div style="display:flex;align-items:center;gap:10px">${mkAvatar(c.initials,'av-accent')}<div><div style="font-size:15px;font-weight:700;color:var(--text)">${c.name}</div><div style="font-size:12px;color:var(--text-3)">${c.seniority} · ${c.specialty}</div></div></div><div style="font-size:32px;font-weight:800;color:${fitColor(rec.fit)}">${rec.fit}%</div></div>`;
+  h+=`<div class="fm-ctx">${ICO.warn.replace('currentColor','var(--accent)')} <span>Matching for <strong>${need.role}</strong> on <strong>${DATA.projects[state.project]?.name?.split('—')[0]||''}</strong></span></div>`;
+  h+='<div class="fd">';
+  // 5 dimensions
+  const dims=[{key:'skills',label:'Technical Skills'},{key:'persona',label:'Persona & Style'},{key:'availability',label:'Availability'},{key:'experience',label:'Experience'},{key:'semantic',label:'Semantic Fit'}];
+  dims.forEach(dim=>{const dd=fb[dim.key];if(!dd)return;
+    h+=`<div class="fd-card"><div class="fd-hd"><div class="fd-t">${dim.label}</div><div class="fd-s" style="color:${fitColor(dd.score)}">${dd.score}</div></div>`;
+    if(dd.matches){h+='<div class="fd-det">';dd.matches.forEach(m=>{const scl={strong:'fm-strong',ok:'fm-ok',weak:'fm-weak'}[m.status]||'fm-ok';const slbl=m.skill||m.trait;h+=`<div class="fm-row"><div class="fm-ml">${slbl}</div><div class="fm-ms ${scl}">${m.status}</div><div class="fm-ev">${m.evidence}</div></div>`});h+='</div>'}
+    if(dd.details){h+='<div class="fm-ag">';dd.details.forEach(r=>{h+=`<div class="fm-ai"><div class="fm-al">${r.l}</div><div class="fm-av">${r.v}</div></div>`});h+='</div>'}
+    h+='</div>'});
+  // Reasoning
+  h+=`<div class="fm-reason"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:8px">V-Brain Reasoning</div><div style="font-size:13px;line-height:1.65;color:var(--text-2)">${rec.reasoning_full}</div></div>`;
+  if(rec.considerations&&rec.considerations.length){h+=`<div class="fm-cons"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);margin-bottom:8px">Considerations</div>${rec.considerations.map(ci=>`<div class="fm-ci">${ICO.warn.replace('currentColor','#B8860B')} <span>${ci}</span></div>`).join('')}</div>`}
+  h+=`</div></div>`;d.innerHTML=h;
+  setTimeout(()=>{d.querySelector('#fmClose').onclick=()=>{state.fitModal=null;render()};d.querySelector('[data-goto="profile"]').onclick=go('profile',{consultant:rec.id});d.onclick=(e)=>{if(e.target===d){state.fitModal=null;render()}}},0);
+  return d}
+
+/* NEW PROJECT WIZARD */
+function renderNewProjectModal(){
+  const d=document.createElement('div');d.className='modal-bg on';
+  const step=state.newProjStep||0;const np=state.newProjData||{skills:[]};
+  const steps=['Project Details','Leadership','Context Files','Consultant Needs','Review & Create'];
+  let h=`<div class="modal"><div class="modal-hdr"><h3>New Project — ${steps[step]}</h3><div class="modal-close" id="wizClose">×</div></div><div class="modal-body">`;
+  // Step dots
+  h+=`<div class="step-indicator">${steps.map((_,i)=>`<div class="step-dot${i<step?' done':''}${i===step?' on':''}"></div>`).join('')}</div>`;
+
+  if(step===0){
+    h+=`<div class="form-group"><label class="form-label">Project Name</label><input class="form-input" id="np-name" placeholder="e.g. Nexus Digital — Data Platform Build" value="${np.name||''}"></div>`;
+    h+=`<div class="form-group"><label class="form-label">Client</label><input class="form-input" id="np-client" placeholder="e.g. Atlas Bank" value="${np.client||''}"></div>`;
+    h+=`<div class="form-group"><label class="form-label">Description</label><textarea class="form-input" id="np-desc" placeholder="Brief description of project scope and objectives…">${np.desc||''}</textarea></div>`;
+    h+=`<div class="form-row"><div class="form-group"><label class="form-label">Status</label><select class="form-input" id="np-status"><option value="active"${np.status==='active'?' selected':''}>Active</option><option value="winding"${np.status==='winding'?' selected':''}>Winding Down</option></select></div><div class="form-group"><label class="form-label">Start Date</label><input class="form-input" id="np-start" type="month" value="${np.start||'2026-06'}"></div></div>`;
+  } else if(step===1){
+    h+=`<div class="form-group"><label class="form-label">Partner (Engagement Lead)</label><select class="form-input" id="np-partner"><option value="">Select partner…</option>${['Priscila B.','Jonathan K.','Winsome C.','Carol M.'].map(p=>`<option${np.partner===p?' selected':''}>${p}</option>`).join('')}</select><div class="form-hint">Partner must approve the engagement before it goes live</div></div>`;
+    h+=`<div class="form-group"><label class="form-label">QA (Delivery Oversight)</label><select class="form-input" id="np-qa"><option value="">Select QA…</option>${['Monique V.','Jonathan K.','Winsome C.','Priscila B.','Carol M.'].map(q=>`<option${np.qa===q?' selected':''}>${q}</option>`).join('')}</select></div>`;
+    h+=`<div class="form-group"><label class="form-label">Approval Status</label><div style="padding:12px 16px;background:rgba(217,163,21,.06);border:1px solid rgba(217,163,21,.15);border-radius:var(--r-sm);font-size:12px;color:#B8860B">⏳ Partner approval will be requested upon submission. The project will be created in <strong>draft</strong> state until approved.</div></div>`;
+  } else if(step===2){
+    h+=`<div class="form-group"><label class="form-label">Project Context Files</label><div class="upload-zone" id="uploadZone">${ICO.upload}<div style="margin-top:8px;font-size:13px;font-weight:500">Drop files here or click to browse</div><div style="font-size:11px;color:var(--text-4);margin-top:4px">SOW, proposals, client briefs, data schemas, meeting notes…</div></div><div class="form-hint">V-Brain will ingest these to generate project context, timeline, and health signals</div></div>`;
+    const files=np.files||[];if(files.length){h+=`<div style="margin-top:10px">${files.map((f,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface-2);border-radius:var(--r-sm);margin-bottom:6px"><span style="font-size:12px;color:var(--text-2)">${f}</span><span style="font-size:10px;color:var(--text-4);margin-left:auto">Ready</span></div>`).join('')}</div>`}
+  } else if(step===3){
+    h+=`<div class="form-group"><label class="form-label">Team Size Needed</label><input class="form-input" id="np-teamsize" type="number" min="1" max="20" placeholder="e.g. 3" value="${np.teamSize||''}"></div>`;
+    h+=`<div class="form-group"><label class="form-label">Key Skills Required</label><div class="skill-input-row"><input class="form-input" id="np-skillin" placeholder="e.g. Snowflake, Python, Process Mapping…"><button id="addSkillBtn">+</button></div><div class="skill-tags" id="skillTags">${(np.skills||[]).map((sk,i)=>`<span class="skill-tag-rm">${sk}<span class="x" data-ski="${i}">×</span></span>`).join('')}</div></div>`;
+    h+=`<div class="form-row"><div class="form-group"><label class="form-label">Seniority Mix</label><select class="form-input" id="np-seniority"><option value="">Select…</option><option${np.seniority==='Senior-heavy'?' selected':''}>Senior-heavy</option><option${np.seniority==='Mixed'?' selected':''}>Mixed</option><option${np.seniority==='Junior-ok'?' selected':''}>Junior-ok</option></select></div><div class="form-group"><label class="form-label">Preferred Persona</label><input class="form-input" id="np-persona" placeholder="e.g. autonomous, client-facing" value="${np.persona||''}"></div></div>`;
+    h+=`<div class="form-group"><label class="form-label">Additional Notes for V-Allocate</label><textarea class="form-input" id="np-allocnotes" placeholder="Any specific requirements, travel needs, client preferences…">${np.allocNotes||''}</textarea></div>`;
+  } else if(step===4){
+    h+=`<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:16px">Review your project before creating</div>`;
+    const rows=[{l:'Project',v:np.name||'—'},{l:'Client',v:np.client||'—'},{l:'Description',v:np.desc||'—'},{l:'Status',v:np.status||'active'},{l:'Start',v:np.start||'—'},{l:'Partner',v:np.partner||'—'},{l:'QA',v:np.qa||'—'},{l:'Files',v:(np.files||[]).length+' uploaded'},{l:'Team Size',v:np.teamSize||'—'},{l:'Skills',v:(np.skills||[]).join(', ')||'—'},{l:'Seniority',v:np.seniority||'—'},{l:'Persona',v:np.persona||'—'}];
+    h+=`<div style="background:var(--surface-2);border:1px solid var(--border-light);border-radius:var(--r-md);padding:18px 20px">${rows.map(r=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border-light);font-size:13px"><span style="color:var(--text-3)">${r.l}</span><span style="color:var(--text);font-weight:500;text-align:right;max-width:60%">${r.v}</span></div>`).join('')}</div>`;
+    h+=`<div style="margin-top:14px;padding:12px 16px;background:rgba(0,161,137,.04);border:1px solid rgba(0,161,137,.1);border-radius:var(--r-sm);font-size:12px;color:var(--text-2)">✅ On creation, V-Brain will begin ingesting uploaded files, building the project timeline, and generating health signals. Partner approval will be requested from <strong>${np.partner||'—'}</strong>.</div>`;
+  }
+  h+='</div>';
+  // Footer
+  const isFirst=step===0,isLast=step===4;
+  h+=`<div class="modal-footer">${!isFirst?'<button class="btn-secondary" id="wizPrev">← Back</button>':''}<button class="btn-primary" id="wizNext">${isLast?'Create Project':'Next →'}</button></div></div>`;
+  d.innerHTML=h;
+
+  setTimeout(()=>{
+    d.querySelector('#wizClose').onclick=()=>{state.newProjOpen=false;render()};
+    d.onclick=(e)=>{if(e.target===d){state.newProjOpen=false;render()}};
+    const prev=d.querySelector('#wizPrev'),next=d.querySelector('#wizNext');
+    function saveStep(){
+      if(step===0){np.name=d.querySelector('#np-name')?.value;np.client=d.querySelector('#np-client')?.value;np.desc=d.querySelector('#np-desc')?.value;np.status=d.querySelector('#np-status')?.value;np.start=d.querySelector('#np-start')?.value}
+      if(step===1){np.partner=d.querySelector('#np-partner')?.value;np.qa=d.querySelector('#np-qa')?.value}
+      if(step===2){/* files already tracked */}
+      if(step===3){np.teamSize=d.querySelector('#np-teamsize')?.value;np.seniority=d.querySelector('#np-seniority')?.value;np.persona=d.querySelector('#np-persona')?.value;np.allocNotes=d.querySelector('#np-allocnotes')?.value}
+      state.newProjData=np;
+    }
+    if(prev)prev.onclick=()=>{saveStep();state.newProjStep=step-1;render()};
+    if(next)next.onclick=()=>{saveStep();
+      if(isLast){
+        // Create the project
+        const pid=np.name?np.name.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,12):'proj'+Date.now();
+        const fmt=np.start?new Date(np.start+'T00:00').toLocaleDateString('en',{month:'short',year:'numeric'}):'Jun 2026';
+        DATA.projects[pid]={
+          name:np.name||'New Project',status:np.status||'active',statusLabel:np.status==='active'?'Active':'Winding Down',
+          partner:np.partner||'TBD',qa:np.qa||'TBD',team:[],teamDisplay:np.teamSize?(np.teamSize+' needed'):'TBD',started:fmt,
+          desc:np.desc||'',updated:'Just now',
+          timeline:[{date:'Today',type:'milestone',title:'Project created in V-Brain',desc:'Project ingestion started. Files being processed for context generation.',source:'V-Brain system'}],
+          health:{delivery:{pct:0,color:'var(--text-4)',label:'Awaiting kickoff',details:[]},utilisation:{pct:0,color:'var(--text-4)',label:'No team assigned yet',details:[]},comms:{pct:0,color:'var(--text-4)',label:'No client interactions yet',details:[]},risk:{value:'0',color:'var(--accent)',label:'No risks identified.',details:[]}},
+          internalTeam:[{i:np.partner?np.partner.split(' ').map(w=>w[0]).join(''):'TB',n:np.partner||'TBD',r:'Partner'},{i:np.qa?np.qa.split(' ').map(w=>w[0]).join(''):'TB',n:np.qa||'TBD',r:'QA'}],
+          clientTeam:[{i:'??',n:'Client contacts',r:'Pending ingestion'}],
+          docs:(np.files||[]).map(f=>({n:f,sub:'Uploaded · Processing',c:'var(--text-4)'})),
+          allocNeeds:[]
+        };
+        state.newProjOpen=false;state.newProjStep=0;state.newProjData={skills:[]};state.screen='dashboard';render();
+        return;
+      }
+      state.newProjStep=step+1;render();
+    };
+    // Upload zone click simulation
+    const uz=d.querySelector('#uploadZone');
+    if(uz)uz.onclick=()=>{if(!np.files)np.files=[];const fakes=['SOW_Phase1_v3.pdf','Client_Brief_Jun2026.docx','Data_Schema_v2.xlsx','Kickoff_Meeting_Notes.pdf'];const pick=fakes.filter(f=>!(np.files||[]).includes(f)).slice(0,2);np.files=[...(np.files||[]),...pick];state.newProjData=np;render()};
+    // Skill add
+    const skillBtn=d.querySelector('#addSkillBtn');
+    if(skillBtn)skillBtn.onclick=()=>{const inp=d.querySelector('#np-skillin');if(inp&&inp.value.trim()){if(!np.skills)np.skills=[];np.skills.push(inp.value.trim());state.newProjData=np;saveStep();render()}};
+    const skIn=d.querySelector('#np-skillin');
+    if(skIn)skIn.onkeydown=(e)=>{if(e.key==='Enter'){e.preventDefault();skillBtn?.click()}};
+    // Skill remove
+    d.querySelectorAll('.x[data-ski]').forEach(x=>{x.onclick=(e)=>{e.stopPropagation();np.skills.splice(parseInt(x.dataset.ski),1);state.newProjData=np;render()}});
+  },0);
+  return d}
+
+/* BOOTSTRAP */
+render();
+</script>
+</body>
+</html>
