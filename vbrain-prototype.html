@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V-Brain — Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   V-BRAIN PROTOTYPE — STYLES
+   Design: dark teal palette with green-light accents, gradient cards
+   Derived from page.tsx marketing site aesthetic
+   ========================================================================== */
+:root{
+  --teal-black:#021E24;--teal-deep:#03272E;--teal-dark:#00363D;--teal-mid:#0F515C;
+  --teal:#0C7878;--accent:#00A189;--green-light:#A9FDAC;--green-accent:#00E08E;
+  --grey:#939196;--offwhite:#F7F3F5;
+  --w70:rgba(247,243,245,.7);--w60:rgba(247,243,245,.6);--w55:rgba(247,243,245,.55);
+  --w35:rgba(247,243,245,.35);--w20:rgba(247,243,245,.2);--w12:rgba(247,243,245,.12);
+  --w08:rgba(247,243,245,.08);--w04:rgba(247,243,245,.04);--w02:rgba(247,243,245,.02);
+  --grad-card:linear-gradient(160deg,rgba(15,81,92,.1) 0%,rgba(0,161,137,.04) 100%);
+  --grad-bar:linear-gradient(90deg,var(--teal-mid),var(--accent),var(--green-light));
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--teal-black);color:var(--offwhite);min-height:100vh;overflow-x:hidden}
+.screen{display:none;animation:fadeIn .3s ease;min-height:100vh}.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+@keyframes pulse{0%,100%{box-shadow:0 0 12px rgba(169,253,172,.6)}50%{box-shadow:0 0 4px rgba(169,253,172,.3)}}
+
+/* NAV */
+.topnav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:13px 28px;background:rgba(2,30,36,.82);backdrop-filter:blur(24px);border-bottom:1px solid var(--w08)}
+.topnav-logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700;letter-spacing:-.02em;cursor:pointer}
+.topnav-logo .v{color:var(--green-light)}
+.brain-dot{width:8px;height:8px;border-radius:50%;background:var(--green-light);animation:pulse 2.5s infinite}
+.topnav-right{display:flex;align-items:center;gap:14px}
+.notif-btn{position:relative;width:36px;height:36px;border-radius:50%;border:1px solid var(--w12);background:var(--w04);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--w60);transition:all .2s}
+.notif-btn:hover{border-color:var(--green-light);color:var(--green-light)}
+.notif-badge{position:absolute;top:-2px;right:-2px;width:16px;height:16px;border-radius:50%;background:var(--green-accent);color:var(--teal-black);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--green-light),var(--accent));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--teal-black);cursor:pointer}
+
+/* LAYOUT */
+.shell{max-width:1120px;margin:0 auto;padding:28px 28px 60px}
+.section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--w35);margin-bottom:14px}
+
+/* SEARCH */
+.dash-topbar{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.search-bar{flex:1;display:flex;align-items:center;gap:10px;padding:12px 18px;background:var(--w04);border:1px solid var(--w08);border-radius:40px;transition:border-color .2s}
+.search-bar:focus-within{border-color:var(--green-light)}
+.search-bar svg{color:var(--w35);flex-shrink:0}
+.search-bar input{flex:1;border:none;outline:none;background:0 0;font-family:inherit;font-size:14px;color:var(--offwhite)}
+.search-bar input::placeholder{color:var(--w35)}
+.icon-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--w12);background:var(--w04);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--w55);transition:all .2s}
+.icon-btn:hover{border-color:var(--w20);color:var(--offwhite)}
+.add-btn{padding:0 18px;gap:6px;border-radius:40px;background:var(--green-accent);border:1px solid var(--green-accent);color:var(--teal-black);font-weight:600;font-size:14px;display:flex;align-items:center;justify-content:center;height:42px;cursor:pointer;transition:all .2s}
+.add-btn:hover{background:var(--green-light);transform:translateY(-1px)}
+
+/* PROJECT CARDS */
+.p-card{display:flex;align-items:flex-start;gap:16px;padding:20px 24px;background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg);margin-bottom:10px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.p-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 3px 3px 0;background:var(--grad-bar);opacity:0;transition:opacity .25s}
+.p-card:hover{border-color:var(--w20);background:rgba(15,81,92,.15);transform:translateX(4px)}
+.p-card:hover::before{opacity:1}
+.p-card:hover .p-arrow{color:var(--green-light);transform:translateX(3px)}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.badge-active{background:rgba(0,224,142,.12);color:var(--green-accent)}
+.badge-winding{background:rgba(255,193,7,.1);color:#ffc107}
+.badge-flagged{background:rgba(255,107,107,.1);color:#ff6b6b}
+.badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.p-info{flex:1;min-width:0}
+.p-name{font-size:16px;font-weight:600;letter-spacing:-.01em;margin-bottom:5px}
+.p-meta{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--w55);margin-bottom:7px}
+.p-meta b{color:var(--w70);font-weight:500}
+.p-desc{font-size:13px;line-height:1.55;color:var(--w35);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.p-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}
+.p-updated{font-size:10px;color:var(--w35)}
+.p-arrow{color:var(--w20);transition:all .25s}
+
+/* SUITE */
+.suite-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:32px}
+.suite-tile{aspect-ratio:1.4;border-radius:var(--r-lg);border:1px solid var(--w08);background:var(--w02);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:all .3s;position:relative}
+.suite-tile.on{border-color:var(--green-accent);background:rgba(0,224,142,.04)}
+.suite-tile.on:hover{background:rgba(0,224,142,.08);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,224,142,.1)}
+.suite-tile.off{opacity:.35;pointer-events:none}
+.s-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.suite-tile.on .s-icon{background:rgba(0,224,142,.15);color:var(--green-accent)}
+.suite-tile.off .s-icon{background:var(--w08);color:var(--w35)}
+.s-name{font-size:13px;font-weight:600}
+.suite-tile.on .s-name{color:var(--green-light)}
+.suite-tile.off .s-name{color:var(--w55)}
+.s-badge{position:absolute;top:10px;right:10px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:10px;background:var(--w08);color:var(--w35)}
+
+/* BACK BTN + HEADERS */
+.back-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--w12);background:var(--w04);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--w55);transition:all .2s;flex-shrink:0}
+.back-btn:hover{border-color:var(--green-light);color:var(--green-light)}
+.hdr{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.hdr-title{font-size:24px;font-weight:700;letter-spacing:-.03em}
+.hdr-sub{font-size:14px;color:var(--w55);margin-bottom:24px;padding-left:50px}
+
+/* TABS */
+.tab-bar{display:flex;gap:4px;padding:4px;background:var(--w04);border-radius:40px;border:1px solid var(--w08);margin-bottom:28px;overflow-x:auto}
+.tab{padding:10px 20px;border-radius:36px;font-size:13px;font-weight:500;color:var(--w55);cursor:pointer;white-space:nowrap;transition:all .2s}
+.tab:hover{color:var(--offwhite);background:var(--w08)}
+.tab.on{background:var(--teal-mid);color:var(--green-light);font-weight:600}
+.tc{display:none;animation:slideUp .3s ease}.tc.on{display:block}
+
+/* TIMELINE */
+.tl-filters{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.chip{padding:6px 14px;border-radius:20px;border:1px solid var(--w12);background:0 0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--w55);cursor:pointer;transition:all .2s}
+.chip:hover{border-color:var(--w20);color:var(--offwhite)}
+.chip.on{border-color:var(--green-accent);color:var(--green-accent);background:rgba(0,224,142,.06)}
+.tl-item{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--w08)}
+.tl-date{width:70px;flex-shrink:0;font-size:11px;color:var(--w35);padding-top:3px;text-align:right}
+.tl-dot-col{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.tl-dot{width:10px;height:10px;border-radius:50%;margin-top:5px}
+.tl-line{width:1px;flex:1;background:var(--w08);margin-top:6px}
+.dot-decision{background:var(--green-accent);box-shadow:0 0 8px rgba(0,224,142,.4)}
+.dot-milestone{background:#60a5fa;box-shadow:0 0 8px rgba(96,165,250,.4)}
+.dot-risk{background:#ff6b6b;box-shadow:0 0 8px rgba(255,107,107,.4)}
+.dot-update{background:var(--grey)}
+.dot-personnel{background:#c084fc;box-shadow:0 0 8px rgba(192,132,252,.4)}
+.tl-body{flex:1;min-width:0}
+.tl-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.tag-decision{background:rgba(0,224,142,.12);color:var(--green-accent)}
+.tag-milestone{background:rgba(96,165,250,.12);color:#60a5fa}
+.tag-risk{background:rgba(255,107,107,.12);color:#ff6b6b}
+.tag-update{background:var(--w08);color:var(--w55)}
+.tag-personnel{background:rgba(192,132,252,.12);color:#c084fc}
+.tl-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.tl-desc{font-size:13px;line-height:1.5;color:var(--w55)}
+.tl-source{font-size:11px;color:var(--w35);margin-top:6px;font-style:italic}
+
+/* BRIEFING */
+.brief{background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg);margin-bottom:12px;overflow:hidden;transition:border-color .2s}
+.brief:hover{border-color:var(--w20)}
+.brief-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;cursor:pointer}
+.brief-left{display:flex;align-items:center;gap:12px}
+.brief-num{width:28px;height:28px;border-radius:50%;background:var(--teal-mid);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--green-light)}
+.brief-t{font-size:15px;font-weight:600}
+.brief-st{font-size:12px;color:var(--w35);margin-top:1px}
+.brief-chev{color:var(--w35);transition:transform .25s}
+.brief.open .brief-chev{transform:rotate(180deg)}
+.brief-bd{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.brief.open .brief-bd{max-height:600px}
+.brief-inner{padding:0 22px 22px}
+
+/* SKELETON */
+.sk{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--w08) 0%,var(--w12) 50%,var(--w08) 100%);background-size:400px 12px;animation:shimmer 1.8s infinite linear;margin-bottom:10px}
+.sk:last-child{margin-bottom:0}
+.sk.w100{width:100%}.sk.w90{width:90%}.sk.w80{width:80%}.sk.w70{width:70%}.sk.w60{width:60%}.sk.w40{width:40%}
+.sk.h20{height:20px;margin-bottom:14px}
+
+/* HEALTH */
+.h-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.h-card{padding:20px;background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg)}
+.h-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:14px}
+.h-bar-t{height:6px;border-radius:3px;background:var(--w08);margin-bottom:8px;overflow:hidden}
+.h-bar-f{height:100%;border-radius:3px}
+.h-val{font-size:24px;font-weight:700;letter-spacing:-.03em}
+.h-sub{font-size:12px;color:var(--w35);margin-top:2px}
+.h-detail{margin-top:10px;padding-top:10px;border-top:1px solid var(--w08)}
+.h-drow{display:flex;justify-content:space-between;padding:5px 0;font-size:12px}
+.h-dl{color:var(--w35)}.h-dv{color:var(--w70);font-weight:500}
+
+/* STAKEHOLDERS */
+.st-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.st-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:12px}
+.st-card{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--w02);border:1px solid var(--w08);border-radius:var(--r-md);margin-bottom:8px}
+.av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--teal-mid),var(--teal));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.av-accent{background:linear-gradient(135deg,var(--accent),var(--green-accent))!important}
+.av-blue{background:linear-gradient(135deg,#4a6fa5,#60a5fa)!important}
+.st-name{font-size:13px;font-weight:600}
+.st-role{font-size:11px;color:var(--w35)}
+
+/* V-ALLOCATE */
+.al-card{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 18px 26px;background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg);margin-bottom:10px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.al-card:hover{border-color:var(--w20);background:rgba(15,81,92,.15);transform:translateX(4px)}
+.al-bar{width:3px;height:100%;position:absolute;left:0;top:0;background:var(--grad-bar)}
+.al-name{font-size:15px;font-weight:600}
+.al-needs{font-size:12px;color:var(--w55);margin-top:2px}
+.al-right{display:flex;align-items:center;gap:14px}
+.al-deadline{font-size:11px;font-weight:600;color:var(--w55)}
+.al-count{padding:4px 12px;border-radius:20px;background:rgba(255,107,107,.1);color:#ff6b6b;font-size:11px;font-weight:700}
+
+/* FORECAST */
+.f-toggle{display:flex;gap:2px;padding:3px;background:var(--w04);border:1px solid var(--w08);border-radius:30px}
+.f-btn{padding:7px 16px;border-radius:26px;font-size:11px;font-weight:600;color:var(--w55);cursor:pointer;transition:all .2s}
+.f-btn:hover{color:var(--offwhite)}.f-btn.on{background:var(--teal-mid);color:var(--green-light)}
+.f-view{display:none;animation:slideUp .3s ease}.f-view.on{display:block}
+.cap-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.cap-lbl{width:80px;font-size:11px;color:var(--w35);text-align:right;flex-shrink:0}
+.cap-trk{flex:1;height:26px;border-radius:5px;background:var(--w04);position:relative;overflow:hidden}
+.cap-supply{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--teal-mid),var(--accent));position:absolute;left:0;top:0}
+.cap-demand{height:100%;border-radius:5px;background:rgba(255,107,107,.2);border-right:2px dashed #ff6b6b;position:absolute;left:0;top:0}
+.cap-num{width:50px;font-size:11px;font-weight:600;color:var(--w55);text-align:right;flex-shrink:0}
+.fh-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.fh-lbl{width:55px;font-size:11px;color:var(--w35);text-align:right;flex-shrink:0}
+.fh-bars{flex:1;display:flex;flex-direction:column;gap:3px}
+.fh-bar{height:14px;border-radius:3px;position:relative}
+.fh-bar span{position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:9px;color:var(--offwhite);white-space:nowrap;opacity:.8}
+.fh-fc{background:var(--accent)}.fh-ac{background:var(--green-light)}
+.fh-d{font-size:12px;font-weight:700;width:28px;text-align:center;flex-shrink:0}
+.fh-neg{color:#ff6b6b}.fh-pos{color:var(--green-accent)}.fh-ok{color:var(--w35)}
+
+/* ALLOC TABLE */
+.at-hd{display:grid;grid-template-columns:1.5fr 2fr 1.2fr .7fr .8fr;padding:12px 18px;border-bottom:1px solid var(--w08);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--w35)}
+.at-row{display:grid;grid-template-columns:1.5fr 2fr 1.2fr .7fr .8fr;padding:14px 18px;border-bottom:1px solid var(--w04);font-size:13px;color:var(--w70);align-items:center;cursor:pointer;transition:background .2s}
+.at-row:hover{background:var(--w04)}
+.at-name{display:flex;align-items:center;gap:10px;font-weight:600;color:var(--offwhite)}
+.at-proj{font-size:12px}.at-role{font-size:12px;color:var(--w55)}.at-date{font-size:12px;color:var(--w55)}
+.free{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+.free-now{background:rgba(0,224,142,.15);color:var(--green-accent)}
+.free-soon{background:rgba(0,161,137,.15);color:var(--accent)}
+.free-weeks{background:var(--w08);color:var(--w55)}
+
+/* PANELS (allocate detail) */
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.panel{background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg);padding:22px;max-height:calc(100vh - 260px);overflow-y:auto}
+.panel-t{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--w35);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--w08)}
+.rr{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--w04)}
+.rr-l{font-size:12px;color:var(--w35)}.rr-v{font-size:13px;font-weight:500;text-align:right}
+.stag{display:inline-block;padding:3px 10px;border-radius:20px;border:1px solid var(--w12);font-size:11px;font-weight:500;color:var(--w70);margin:2px 3px}
+
+/* CONSULTANT CARD (in allocate supply panel) */
+.cc{padding:16px;background:var(--w04);border:1px solid var(--w08);border-radius:var(--r-md);margin-bottom:10px;cursor:pointer;transition:border-color .2s}
+.cc:hover{border-color:var(--w20)}
+.cc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cc-nr{display:flex;align-items:center;gap:10px}
+.cc-name{font-size:14px;font-weight:600}
+.cc-stat{padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.cc-avail{background:rgba(0,224,142,.12);color:var(--green-accent)}
+.cc-ending{background:rgba(255,193,7,.1);color:#ffc107}
+.cc-fit{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.fit-hi{color:var(--green-accent)}.fit-md{color:#ffc107}
+.fb-t{height:4px;border-radius:2px;background:var(--w08);margin-bottom:10px}
+.fb-f{height:100%;border-radius:2px;background:var(--green-accent)}
+.cc-reason{font-size:12px;line-height:1.5;color:var(--w55);font-style:italic;padding:8px 12px;background:var(--w02);border-radius:var(--r-sm);border-left:2px solid var(--green-accent)}
+.cc-link{margin-top:8px;font-size:11px;color:var(--green-light);font-weight:500;display:flex;align-items:center;gap:4px}
+
+/* PROFILE TABS */
+.ptab{display:none;animation:slideUp .3s ease}.ptab.on{display:block}
+
+/* OVERVIEW TAB */
+.ov-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;color:var(--w70)}
+.ov-int{padding:4px 12px;border-radius:20px;background:rgba(0,224,142,.06);border:1px solid rgba(0,224,142,.15);font-size:11px;color:var(--green-light);font-weight:500}
+.ov-sk{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--w04)}
+.ov-sn{font-size:12px;line-height:1.5;color:var(--w55);flex:1}
+
+/* PAST PROJECTS */
+.ph{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 20px;background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-md);margin-bottom:10px}
+.ph:hover{border-color:var(--w20)}
+.ph-dates{font-size:11px;color:var(--w35);margin-bottom:4px}
+.ph-name{font-size:14px;font-weight:600;margin-bottom:2px}
+.ph-role{font-size:12px;color:var(--w55)}
+.ph-right{display:flex;gap:20px}
+.ph-m{display:flex;flex-direction:column;align-items:center;gap:2px}
+.ph-ml{font-size:9px;color:var(--w35);text-transform:uppercase;letter-spacing:.06em}
+.ph-mv{font-size:14px;font-weight:700}
+
+/* SKILL DETAIL */
+.skd{padding:16px 0;border-top:1px solid var(--w08)}
+.skd-hd{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.skd-rec{font-size:11px;color:var(--w35)}
+.skd-ev{display:flex;flex-direction:column;gap:10px;padding-left:12px;border-left:2px solid var(--w08);margin-left:4px}
+.skd-ei{padding:10px 14px;background:var(--w04);border-radius:var(--r-sm)}
+.skd-ep{font-size:11px;font-weight:600;color:var(--accent);margin-bottom:4px}
+.skd-ed{font-size:12.5px;line-height:1.55;color:var(--w70)}
+
+/* PERSONA */
+.pr{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--w04)}
+.pr-l{font-size:12px;color:var(--w35)}.pr-v{font-size:12px;font-weight:500;text-align:right}
+.pe-block{margin-bottom:18px}
+.pe-trait{font-size:13px;font-weight:600;margin-bottom:10px}
+.pe-items{display:flex;flex-direction:column;gap:8px;padding-left:12px;border-left:2px solid var(--w08);margin-left:4px}
+.pe-item{padding:10px 14px;background:var(--w04);border-radius:var(--r-sm)}
+.pe-src{font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.pe-det{font-size:12.5px;line-height:1.55;color:var(--w70)}
+
+/* FIT MODAL */
+.fm-bg{display:none;position:fixed;inset:0;z-index:300;background:rgba(2,30,36,.88);backdrop-filter:blur(12px);overflow-y:auto;padding:30px 20px}
+.fm-bg.on{display:flex;justify-content:center;animation:fadeIn .25s ease}
+.fm{width:100%;max-width:780px;background:var(--teal-deep);border:1px solid var(--w12);border-radius:var(--r-xl);box-shadow:0 30px 80px rgba(0,0,0,.5);margin:auto}
+.fm-hdr{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid var(--w08)}
+.fm-btn{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--w55);cursor:pointer;padding:6px 12px;border-radius:20px;border:1px solid var(--w12);transition:all .2s}
+.fm-btn:hover{border-color:var(--w20);color:var(--offwhite)}
+.fm-btn.go:hover{border-color:var(--green-light);color:var(--green-light)}
+.fm-body{padding:24px}
+.fm-id{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.fm-ctx{display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(169,253,172,.04);border:1px solid rgba(169,253,172,.12);border-radius:var(--r-md);font-size:12px;color:var(--w70);margin-bottom:24px}
+.fm-ctx strong{color:var(--offwhite)}
+.fd{display:flex;flex-direction:column;gap:14px}
+.fd-card{background:var(--w02);border:1px solid var(--w08);border-radius:var(--r-md);padding:18px 20px}
+.fd-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.fd-t{font-size:14px;font-weight:700}.fd-s{font-size:20px;font-weight:700}
+.fd-det{display:flex;flex-direction:column;gap:8px}
+.fm-row{display:grid;grid-template-columns:auto auto 1fr;gap:10px;align-items:start;padding:8px 0;border-bottom:1px solid var(--w04)}
+.fm-row:last-child{border-bottom:none}
+.fm-ml{font-size:11px;font-weight:600;color:var(--w55);white-space:nowrap}
+.fm-ms{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:8px;white-space:nowrap}
+.fm-strong{background:rgba(0,224,142,.1);color:var(--green-accent)}
+.fm-ok{background:rgba(0,161,137,.12);color:var(--accent)}
+.fm-weak{background:rgba(255,193,7,.1);color:#ffc107}
+.fm-ev{font-size:12px;line-height:1.5;color:var(--w55)}
+.fm-ag{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.fm-ai{padding:8px 0;border-bottom:1px solid var(--w04)}
+.fm-al{font-size:11px;color:var(--w35);margin-bottom:2px}.fm-av{font-size:13px;font-weight:500}
+.fm-reason{margin-top:20px;padding:18px 20px;background:rgba(169,253,172,.03);border:1px solid rgba(169,253,172,.1);border-radius:var(--r-md)}
+.fm-cons{margin-top:14px;padding:16px 20px;background:var(--w02);border:1px solid var(--w08);border-radius:var(--r-md)}
+.fm-ci{display:flex;align-items:flex-start;gap:8px;padding:6px 0;font-size:12px;line-height:1.5;color:var(--w55)}
+.fm-ci svg{flex-shrink:0;margin-top:1px}
+
+/* NOTIF */
+.np{position:fixed;top:64px;right:28px;width:380px;background:var(--teal-deep);border:1px solid var(--w12);border-radius:var(--r-xl);box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:200;display:none;animation:slideUp .25s ease;max-height:calc(100vh - 100px);overflow-y:auto}
+.np.on{display:block}
+.np-hd{padding:18px 20px 14px;border-bottom:1px solid var(--w08);font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.np-item{padding:14px 20px;border-bottom:1px solid var(--w04);cursor:pointer;transition:background .2s}
+.np-item:hover{background:var(--w04)}
+.np-type{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.np-risk{color:#ff6b6b}.np-alloc{color:var(--green-accent)}.np-upd{color:#60a5fa}
+.np-txt{font-size:13px;color:var(--w70);line-height:1.45}
+.np-time{font-size:10px;color:var(--w35);margin-top:4px}
+
+@media(max-width:768px){.h-grid,.st-grid,.panels{grid-template-columns:1fr}.suite-grid{grid-template-columns:repeat(2,1fr)}.p-card{flex-direction:column}.at-hd,.at-row{grid-template-columns:1fr 1fr 1fr;font-size:11px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ==========================================================================
+   V-BRAIN DATA LAYER
+   ===========================================================================
+   ARCHITECTURE: All static content lives here in a single DATA object.
+   When connecting to the V-Brain semantic layer API, replace DATA with
+   fetch() calls returning the same shape. UI components only read from DATA —
+   zero component changes needed.
+
+   SHAPE REFERENCE:
+   ─────────────────
+   DATA.consultants[id] = {
+     initials, name, seniority, specialty, joined, location, travel,
+     email, phone, mentor,
+     utilisation (number 0-100), avgFit (0-100), satisfaction (1-5),
+     careerAlign (string), careerNote (string),
+     bio (string), bio2 (string),
+     interests (string[]),
+     topSkills ({name,color,note}[]),   // color: 'green-accent'|'accent'|null
+     skills ({name,color,evidence:[{project,desc}]}[]),  // detailed skills w/ evidence
+     persona ({style,comms,stakeholder,team,ramp}),
+     personaEvidence ({trait,items:[{source,detail}]}[]),
+     projects ({dates,name,role,fit,clientRating,satisfaction,summary}[]),
+     currentProject (string|null),
+     currentProjectLabel (string — shown when currentProject is null),
+     currentRole, freeIn, freeDate, freeBadge (class name)
+   }
+
+   DATA.projects[id] = {
+     name, status ('active'|'flagged'|'winding'), statusLabel,
+     partner, qa, team (consultant id[]), teamDisplay (string),
+     started, desc, updated,
+     timeline ({date,type,title,desc,source}[]),
+     health.delivery/utilisation/comms/risk — see examples below,
+     internalTeam/clientTeam ({i,n,r,accent?}[]),
+     docs ({n,sub,c}[]),
+     allocNeeds ({role,seniority,duration,skills,persona,notes,
+       recs:[{id (consultant id),fit,fitClass,reasoning,
+         fitBreakdown:{skills,persona,availability,experience,semantic}
+       }]
+     }[])
+   }
+
+   DATA.allocOpenProjects = [{id (project id),needs,start,deadline,openCount}]
+   DATA.notifications = [{type,text,time}]
+   DATA.forecastCurrent = {available,freeingUp,demand,net,rows:[{label,supply,demand,nums}]}
+   DATA.forecastHistory = [{week,forecast,actual,delta}]
+   =========================================================================== */
+
+const DATA = {
+
+// ─── CONSULTANTS ──────────────────────────────────────────────────────────
+consultants: {
+  liam: {
+    initials:'LT',name:'Liam Torres',seniority:'Senior Consultant',specialty:'Data Engineering',joined:'Mar 2024',location:'Sydney, NSW',travel:'Open to travel',email:'liam.torres@visagio.com',phone:'+61 412 938 201',mentor:'Priscila Brasil',
+    utilisation:91,avgFit:84,satisfaction:3.9,careerAlign:'Moderate',careerNote:'Wants ML/AI — mostly ETL lately',
+    bio:'Liam is a technically deep, self-directed data engineer who does his best work when given a problem and space to solve it. He communicates concisely — prefers writing over meetings — and builds trust with technical counterparts quickly.',
+    bio2:'Mentors junior engineers in an open source data community. Working toward AWS Solutions Architect certification. Clear desire to shift toward ML engineering.',
+    interests:['Platform architecture','Data quality problems','ML engineering','Open source tooling','Technical mentoring','Autonomous ownership'],
+    topSkills:[{name:'Snowflake',color:'green-accent',note:'Lakehouse architecture, Snowpipe, clustering — 2 projects'},{name:'dbt',color:'green-accent',note:'120+ models, introduced to a team from scratch — 2 projects'},{name:'Python',color:'green-accent',note:'Statistical models, PII pipelines, ETL validation — 4 projects'},{name:'SQL',color:'accent',note:'Complex query optimisation, window functions — all engagements'},{name:'Databricks',color:'accent',note:'Picked up in 2 weeks — PySpark, IoT batch processing'}],
+    skills:[
+      {name:'Python',color:'green-accent',evidence:[{project:'Nexus Digital',desc:'Built anomaly detection model (scikit-learn) to flag duplicate customer records. Identified 12,400 near-duplicates with 94% precision, saving ~3 weeks manual QA.'},{project:'Summit Health',desc:'PII masking pipeline (pandas + regex) for 2.1M patient records. Became reference implementation reused on 2 subsequent projects.'},{project:'Velocity Retail',desc:'ETL validation framework: automated row-count, schema-drift, freshness checks across 47 tables. Reduced data quality incidents by 80%.'}]},
+      {name:'Snowflake',color:'green-accent',evidence:[{project:'Nexus Digital',desc:'Architected full lakehouse — medallion architecture (bronze/silver/gold), Snowpipe real-time ingestion from 4 legacy sources, dynamic data masking for PII. ~8TB.'},{project:'Summit Health',desc:'Migrated 3 on-prem SQL Server DBs. Optimised with clustering keys and materialised views — dashboard query time from 45s to 3s.'}]},
+      {name:'dbt',color:'green-accent',evidence:[{project:'Nexus Digital',desc:'120+ models, incremental models for high-volume tables, custom macros for SCD Type 2, comprehensive dbt tests.'},{project:'Harbour Group',desc:'Introduced dbt to a raw-SQL team. Set up project structure, CI/CD with GitHub Actions, trained 2 junior consultants.'}]},
+      {name:'Databricks',color:'accent',evidence:[{project:'Harbour Group',desc:'Picked up from scratch in ~2 weeks. Built PySpark notebooks for batch processing of manufacturing IoT data (340 devices). Handled schema evolution and late-arriving data.'}]}
+    ],
+    persona:{style:'Autonomous, heads-down',comms:'Concise, async-first',stakeholder:'Moderate — technical audiences',team:'Strong individual contributor',ramp:'Fast — picked up Databricks in 2 wks'},
+    personaEvidence:[
+      {trait:'Autonomous, heads-down',items:[{source:'Nexus Digital — Partner feedback (Priscila B.)',detail:'"Liam ran the entire data layer without needing daily check-ins. I could give him a target and he\'d come back with it built and tested."'},{source:'Summit Health — Communication pattern analysis',detail:'Averaged 3 Slack messages/day vs team average of 14. Sent structured updates 2×/week rather than continuous pings.'}]},
+      {trait:'Concise, async-first communicator',items:[{source:'Cross-project analysis',detail:'78% of communications were written (Slack, email, Confluence) vs firm average of 52%. Written updates flagged as "clear" by QAs in 3/4 projects.'},{source:'Harbour Group — QA feedback (Jonathan K.)',detail:'"His weekly write-ups were the best on the team. Short, technical, no fluff. But in client meetings he can go quiet."'}]},
+      {trait:'Fast ramp-up on new tools',items:[{source:'Harbour Group — Project timeline',detail:'First Databricks commit Day 3. By Day 12, core PySpark pipeline built. No prior Databricks experience.'},{source:'Nexus Digital — Snowpipe',detail:'Never used Snowpipe before. Deployed real-time ingestion pipeline in first sprint (2 weeks). QA: "faster than expected."'}]}
+    ],
+    projects:[
+      {dates:'Feb–Jun 2026',name:'Nexus Digital — Data Platform Build',role:'Senior Data Engineer',fit:89,clientRating:4.2,satisfaction:4.0,summary:'Led the full data layer — Snowflake medallion lakehouse, 120+ dbt models, Python anomaly detection model cutting manual QA by 3 weeks.'},
+      {dates:'Sep 2025–Jan 2026',name:'Summit Health — Patient Data Migration',role:'Data Engineer',fit:82,clientRating:4.5,satisfaction:3.5,summary:'Migrated 3 on-prem databases to Snowflake. Optimised query performance from 45s to 3s.'},
+      {dates:'May–Aug 2025',name:'Harbour Group — Data Warehouse Build',role:'Data Engineer',fit:76,clientRating:3.8,satisfaction:4.2,summary:'PySpark for IoT batch processing. Introduced dbt and trained 2 junior consultants.'},
+      {dates:'Mar–Apr 2025',name:'Velocity Retail — ETL Pipeline Audit',role:'Consultant',fit:88,clientRating:4.0,satisfaction:3.8,summary:'ETL validation framework reducing data quality incidents by 80%.'}
+    ],
+    currentProject:'Nexus Digital — Data Platform Build',currentProjectLabel:null,currentRole:'Senior, Data Engineer',freeIn:'8 days',freeDate:'12 Jun',freeBadge:'free-soon'
+  },
+  sarah: {
+    initials:'SC',name:'Sarah Chen',seniority:'Senior Consultant',specialty:'Data Analytics',joined:'Sep 2023',location:'Melbourne, VIC',travel:'Prefers local',email:'sarah.chen@visagio.com',phone:'+61 403 221 897',mentor:'Jonathan K.',
+    utilisation:88,avgFit:82,satisfaction:4.1,careerAlign:'Strong',careerNote:'Moving toward team lead roles — well-aligned',
+    bio:'Sarah is a detail-oriented data analyst who excels at translating complex data into clear business narratives. She thrives in collaborative settings and is increasingly taking on leadership responsibilities.',
+    bio2:'Pursuing Masters in Business Analytics part-time. Known for documentation that outlasts her engagement on projects.',
+    interests:['Data storytelling','Stakeholder presentations','Team leadership','Process improvement','Mentoring juniors'],
+    topSkills:[{name:'Power BI',color:'green-accent',note:'15+ executive dashboards across 3 projects'},{name:'SQL',color:'green-accent',note:'Advanced analytics, performance tuning — every engagement'},{name:'Python',color:'accent',note:'Pandas/NumPy analysis, basic ML models'},{name:'Stakeholder Mgmt',color:'accent',note:'Consistently top-rated for client communication'}],
+    skills:[
+      {name:'Power BI',color:'green-accent',evidence:[{project:'Atlas Bank',desc:'Built executive dashboards that became the primary decision-making tool for the client CTO. 6 dashboards with real-time KPIs.'},{project:'Pinnacle Insurance',desc:'Rebuilt entire reporting stack from legacy Excel. Trained 8 client staff on self-service analytics.'}]},
+      {name:'SQL',color:'green-accent',evidence:[{project:'Atlas Bank',desc:'Complex analytics queries across the new data platform. Built views for the reporting layer optimised for Power BI DirectQuery.'},{project:'Crestline Manufacturing',desc:'Predictive maintenance queries joining sensor data with maintenance logs. Window functions for trend detection.'}]}
+    ],
+    persona:{style:'Collaborative, structured',comms:'Clear, visual-first',stakeholder:'Strong — all audiences',team:'Emerging leader',ramp:'Moderate — thorough learner'},
+    personaEvidence:[{trait:'Collaborative, structured',items:[{source:'Atlas Bank — Partner feedback (Jonathan K.)',detail:'"Sarah organises everything. The team runs better when she\'s on it. She\'s ready for a lead role."'},{source:'Communication analysis',detail:'Most active in team channels (avg 18 msgs/day). Creates shared docs proactively. Organised 3 informal knowledge-sharing sessions.'}]}],
+    projects:[
+      {dates:'Feb–Jun 2026',name:'Atlas Bank — Digital Transformation',role:'Lead, Data Workstream',fit:86,clientRating:4.3,satisfaction:4.2,summary:'Led data workstream. Created executive dashboards that became the primary decision tool for the client CTO.'},
+      {dates:'Aug 2025–Jan 2026',name:'Pinnacle Insurance — Reporting Overhaul',role:'Senior Analyst',fit:84,clientRating:4.4,satisfaction:4.0,summary:'Rebuilt reporting stack from Excel to Power BI. Trained 8 client staff.'},
+      {dates:'Mar–Jul 2025',name:'Crestline Manufacturing — Ops Analytics',role:'Analyst',fit:78,clientRating:3.9,satisfaction:3.8,summary:'Built predictive maintenance models using historical sensor data.'}
+    ],
+    currentProject:'Atlas Bank — Digital Transformation',currentProjectLabel:null,currentRole:'Lead, Data Workstream',freeIn:'8 wks',freeDate:'30 Jul',freeBadge:'free-weeks'
+  },
+  raj: {
+    initials:'RP',name:'Raj Patel',seniority:'Senior Consultant',specialty:'Client Delivery',joined:'Jun 2023',location:'Sydney, NSW',travel:'Open to travel',email:'raj.patel@visagio.com',phone:'+61 411 554 332',mentor:'Winsome C.',
+    utilisation:94,avgFit:80,satisfaction:3.7,careerAlign:'Strong',careerNote:'Wants engagement manager — on track',
+    bio:'Raj is a high-energy delivery consultant who keeps projects moving. Notices when milestones slip and escalates before problems grow. Strong with clients under pressure.',
+    bio2:'Former Big 4 management consultant. Brings structured thinking and stakeholder skills above his seniority level.',
+    interests:['Engagement management','Client relationships','Process governance','Risk management','Cross-functional coordination'],
+    topSkills:[{name:'Project Delivery',color:'green-accent',note:'Managed 4 concurrent workstreams on Atlas Bank'},{name:'Client Mgmt',color:'green-accent',note:'Primary client contact on 3 projects'},{name:'Risk Mgmt',color:'accent',note:'Identified Atlas data quality issue before it became critical'},{name:'Jira/Confluence',color:'accent',note:'Set up delivery tracking for all recent engagements'}],
+    skills:[{name:'Project Delivery',color:'green-accent',evidence:[{project:'Atlas Bank',desc:'Managed delivery coordination across 4 workstreams simultaneously. Created sprint dashboards and escalation frameworks.'}]},{name:'Client Mgmt',color:'green-accent',evidence:[{project:'Atlas Bank',desc:'Became primary client contact for day-to-day operations. Ran all weekly status calls.'},{project:'Meridian Logistics',desc:'Ran weekly client standups. First to flag when client engagement started dropping.'}]}],
+    persona:{style:'Proactive, structured',comms:'Frequent, verbal-first',stakeholder:'Strong — all levels',team:'Coordinator/glue',ramp:'Fast — strong generalist'},
+    personaEvidence:[{trait:'Proactive, structured',items:[{source:'Atlas Bank — QA feedback (Winsome C.)',detail:'"Raj is the person who makes sure nothing falls through the cracks. He runs tight standups and follows up relentlessly."'}]}],
+    projects:[
+      {dates:'Feb–Jun 2026',name:'Atlas Bank — Digital Transformation',role:'Senior, Client Delivery',fit:83,clientRating:4.1,satisfaction:3.8,summary:'Managed delivery coordination across 4 workstreams. Became primary client contact.'},
+      {dates:'Sep 2025–Jan 2026',name:'Meridian Logistics — Phase 1',role:'Delivery Lead',fit:80,clientRating:4.0,satisfaction:3.5,summary:'Ran weekly client standups. Flagged early when client engagement dropped.'},
+      {dates:'Apr–Aug 2025',name:'Verdant Energy — Strategy',role:'Consultant',fit:76,clientRating:3.8,satisfaction:3.8,summary:'Supported strategy workstream with competitive analysis and stakeholder interviews.'}
+    ],
+    currentProject:'Atlas Bank — Digital Transformation',currentProjectLabel:null,currentRole:'Senior, Client Delivery',freeIn:'8 wks',freeDate:'30 Jul',freeBadge:'free-weeks'
+  },
+  kira: {
+    initials:'KW',name:'Kira Watanabe',seniority:'Senior Consultant',specialty:'Data Engineering',joined:'Jan 2024',location:'Brisbane, QLD',travel:'Open to travel',email:'kira.watanabe@visagio.com',phone:'+61 432 109 776',mentor:'Monique V.',
+    utilisation:79,avgFit:77,satisfaction:4.0,careerAlign:'Strong',careerNote:'Wants cloud architecture — aligning well',
+    bio:'Kira is a versatile data engineer with a knack for quickly learning new stacks. Quieter than most but delivers consistently high-quality work. Recent bench time spent on AWS certifications.',
+    bio2:'AWS Solutions Architect Associate certified. Active in Brisbane Python meetup community.',
+    interests:['Cloud architecture','Infrastructure as code','AWS ecosystem','Open source tools','Automation'],
+    topSkills:[{name:'Python',color:'green-accent',note:'Core scripting and pipeline development — 3 projects'},{name:'SQL',color:'green-accent',note:'Advanced querying, stored procedures'},{name:'AWS',color:'green-accent',note:'S3, Lambda, Glue, Redshift — certified'},{name:'Terraform',color:'accent',note:'IaC for 2 cloud migration projects'}],
+    skills:[{name:'AWS',color:'green-accent',evidence:[{project:'Harbour Group',desc:'Migrated on-prem data warehouse to Redshift. Wrote all Terraform IaC. Zero downtime cutover.'},{project:'Apex Telecom',desc:'Built Kafka-to-S3 ingestion layer for data lake. Lambda functions for real-time transformations.'}]},{name:'Terraform',color:'accent',evidence:[{project:'Harbour Group',desc:'Full infrastructure as code — VPC, Redshift cluster, S3 buckets, IAM roles. Reproducible environments for dev/staging/prod.'}]}],
+    persona:{style:'Quiet, methodical',comms:'Written, detailed',stakeholder:'Developing — mostly internal',team:'Reliable contributor',ramp:'Very fast — Databricks in 2 weeks'},
+    personaEvidence:[{trait:'Quiet, methodical',items:[{source:'Harbour Group — Partner feedback (Carol M.)',detail:'"Kira doesn\'t say much in meetings but her code is always clean and well-documented. Very reliable."'}]}],
+    projects:[
+      {dates:'Oct 2025–Mar 2026',name:'Harbour Group — Cloud Migration',role:'Data Engineer',fit:79,clientRating:4.0,satisfaction:4.2,summary:'Migrated on-prem warehouse to AWS Redshift. Terraform IaC. Zero downtime cutover.'},
+      {dates:'May–Sep 2025',name:'Apex Telecom — Data Lake Build',role:'Junior Data Engineer',fit:74,clientRating:3.7,satisfaction:3.8,summary:'Kafka-to-S3 data lake ingestion layer. First major cloud-native project.'}
+    ],
+    currentProject:null,currentProjectLabel:'Bench — Available now',currentRole:'Senior, Data Engineer',freeIn:'Now',freeDate:'—',freeBadge:'free-now'
+  },
+  elena: {
+    initials:'EM',name:'Elena Morales',seniority:'Consultant',specialty:'Business Analysis',joined:'Aug 2024',location:'Sydney, NSW',travel:'Open to travel',email:'elena.morales@visagio.com',phone:'+61 422 887 143',mentor:'Priscila Brasil',
+    utilisation:82,avgFit:85,satisfaction:4.3,careerAlign:'Strong',careerNote:'Growing into senior BA — excellent trajectory',
+    bio:'Elena bridges the gap between technical teams and business stakeholders. Creates process maps and requirements documents that clients consistently praise as "the clearest we\'ve ever received."',
+    bio2:'Background in UX research. Unusual ability to empathise with end users and challenge assumptions about stakeholder needs.',
+    interests:['Process design','Stakeholder interviews','Workshop facilitation','UX thinking','Requirements engineering'],
+    topSkills:[{name:'Requirements Gathering',color:'green-accent',note:'Led requirements for 3 projects — client feedback 4.5+/5'},{name:'Process Mapping',color:'green-accent',note:'40+ maps on Meridian — adopted by client'},{name:'Workshop Facilitation',color:'accent',note:'12 stakeholder workshops across 2 engagements'},{name:'Stakeholder Comms',color:'accent',note:'Translates technical → business — rated key strength by 3 partners'}],
+    skills:[{name:'Process Mapping',color:'green-accent',evidence:[{project:'Meridian Logistics',desc:'Created 40+ process maps for warehouse operations. Client described her as "the clearest communicator we\'ve worked with."'},{project:'Crestline Manufacturing',desc:'Mapped 6-department digital transformation gaps. Maps became the foundation for the implementation roadmap.'}]}],
+    persona:{style:'Structured, empathetic',comms:'Clear, visual, verbal',stakeholder:'Excellent — esp. non-technical',team:'Bridge/translator',ramp:'Moderate — thorough'},
+    personaEvidence:[{trait:'Structured, empathetic',items:[{source:'Meridian Logistics — Client feedback',detail:'"Elena made complex supply chain processes understandable. Her workshops were the most productive meetings we\'ve had."'},{source:'Partner feedback (Priscila B.)',detail:'"Elena has a rare ability to make non-technical stakeholders feel heard while also capturing precise technical requirements."'}]}],
+    projects:[
+      {dates:'Jan–May 2026',name:'Meridian Logistics — Supply Chain',role:'Business Analyst',fit:88,clientRating:4.5,satisfaction:4.5,summary:'40+ process maps, all stakeholder workshops. Client: "the clearest communicator we\'ve worked with."'},
+      {dates:'Aug–Dec 2025',name:'Crestline Manufacturing — Digital Roadmap',role:'Junior BA',fit:82,clientRating:4.2,satisfaction:4.0,summary:'Stakeholder interviews and gap analysis across 6 departments.'}
+    ],
+    currentProject:null,currentProjectLabel:'Bench — Available now',currentRole:'Consultant, BA',freeIn:'Now',freeDate:'—',freeBadge:'free-now'
+  },
+  miguel: {
+    initials:'MS',name:'Miguel Santos',seniority:'Consultant',specialty:'Operations',joined:'Feb 2025',location:'Sydney, NSW',travel:'Open to travel',email:'miguel.santos@visagio.com',phone:'+61 401 322 668',mentor:'Winsome C.',
+    utilisation:85,avgFit:76,satisfaction:3.6,careerAlign:'Moderate',careerNote:'Exploring supply chain vs data specialisation',
+    bio:'Miguel is an energetic early-career consultant still finding his specialty. Shown aptitude in both operational analysis and data work. Learns quickly with structured mentoring.',
+    bio2:'Industrial engineering background. Brings quantitative rigour to operational problems.',
+    interests:['Operations optimisation','Supply chain','Data analysis','Lean/Six Sigma','Quantitative modelling'],
+    topSkills:[{name:'Operations Analysis',color:'green-accent',note:'Led efficiency audit on Meridian — 23% waste reduction opportunity'},{name:'Excel/Modelling',color:'accent',note:'Financial models and scenario analyses — 2 projects'},{name:'SQL',color:'accent',note:'Self-taught, ad-hoc analysis on Meridian'}],
+    skills:[{name:'Operations Analysis',color:'green-accent',evidence:[{project:'Meridian Logistics',desc:'Conducted warehouse observations across 3 distribution centres. Identified 23% waste reduction opportunity through layout and process changes.'}]}],
+    persona:{style:'Energetic, adaptable',comms:'Verbal, frequent',stakeholder:'Developing',team:'Enthusiastic contributor',ramp:'Fast when mentored'},
+    personaEvidence:[{trait:'Energetic, adaptable',items:[{source:'Meridian Logistics — QA (Jonathan K.)',detail:'"Miguel has great energy. He needs direction but once pointed, he delivers. Good raw material."'}]}],
+    projects:[{dates:'Feb–Jun 2026',name:'Meridian Logistics — Supply Chain',role:'Consultant',fit:74,clientRating:3.5,satisfaction:3.6,summary:'Operational efficiency workstream. Warehouse observations across 3 distribution centres.'}],
+    currentProject:'Meridian Logistics — Supply Chain',currentProjectLabel:null,currentRole:'Consultant',freeIn:'3 wks',freeDate:'25 Jun',freeBadge:'free-soon'
+  },
+  david: {
+    initials:'DL',name:'David Lee',seniority:'Senior Consultant',specialty:'Operations Strategy',joined:'May 2023',location:'Melbourne, VIC',travel:'Open to travel',email:'david.lee@visagio.com',phone:'+61 413 774 220',mentor:'Carol M.',
+    utilisation:90,avgFit:83,satisfaction:4.0,careerAlign:'Strong',careerNote:'On track for manager — excellent delivery',
+    bio:'David brings calm to complex delivery situations. Known for breaking down ambiguous operating model problems into actionable workstreams.',
+    bio2:'Ex-McKinsey analyst. Brings rigour and frameworks but adapts them practically.',
+    interests:['Operating model design','Org transformation','Governance frameworks','Executive stakeholder mgmt','Mentoring'],
+    topSkills:[{name:'Operating Model Design',color:'green-accent',note:'Led Harbour Group redesign — 3 months, 5 business units'},{name:'Stakeholder Mgmt',color:'green-accent',note:'Trusted by partners for C-suite interactions'},{name:'Process Governance',color:'accent',note:'Frameworks adopted company-wide by 2 clients'},{name:'Workshop Design',color:'accent',note:'20+ executive alignment workshops'}],
+    skills:[{name:'Operating Model Design',color:'green-accent',evidence:[{project:'Harbour Group',desc:'Led operating model redesign across 5 business units. Facilitated executive alignment process that secured board sign-off.'},{project:'Crestline Manufacturing',desc:'Redesigned org structure for manufacturing division. Reduced management layers from 7 to 5.'}]}],
+    persona:{style:'Structured, calm',comms:'Polished, considered',stakeholder:'Excellent — C-suite',team:'Quiet leader',ramp:'Moderate'},
+    personaEvidence:[{trait:'Structured, calm',items:[{source:'Harbour Group — Client CEO',detail:'"David brought a level of calm and clarity we desperately needed during the transition. The board trusts him."'}]}],
+    projects:[
+      {dates:'Jan–Jun 2026',name:'Harbour Group — Operating Model Redesign',role:'Senior, Ops Lead',fit:87,clientRating:4.4,satisfaction:4.0,summary:'Led operating model redesign. Board presentation approved with minor adjustments.'},
+      {dates:'Jul–Dec 2025',name:'Crestline Manufacturing — Org Design',role:'Senior Consultant',fit:81,clientRating:4.1,satisfaction:3.9,summary:'Redesigned manufacturing org. Reduced layers from 7 to 5.'}
+    ],
+    currentProject:'Harbour Group — Operating Model Redesign',currentProjectLabel:null,currentRole:'Senior, Ops Lead',freeIn:'3 wks',freeDate:'25 Jun',freeBadge:'free-soon'
+  },
+  jess: {
+    initials:'JW',name:'Jess Wang',seniority:'Consultant',specialty:'Change Management',joined:'Nov 2024',location:'Melbourne, VIC',travel:'Local preferred',email:'jess.wang@visagio.com',phone:'+61 408 663 991',mentor:'Carol M.',
+    utilisation:80,avgFit:78,satisfaction:4.2,careerAlign:'Strong',careerNote:'Clear path into change management specialty',
+    bio:'Jess brings a human-centred approach to change management. Excels at understanding resistance patterns and designing adoption strategies that stick.',
+    bio2:'Background in organisational psychology. Applies behavioural science to change adoption.',
+    interests:['Change management','Adoption strategies','Behavioural science','Internal comms','Training design'],
+    topSkills:[{name:'Change Management',color:'green-accent',note:'92% employee adoption on Harbour Group'},{name:'Internal Comms',color:'green-accent',note:'All comms for Harbour transition — praised for clarity'},{name:'Training Design',color:'accent',note:'Programs for 200+ employees across 2 projects'}],
+    skills:[{name:'Change Management',color:'green-accent',evidence:[{project:'Harbour Group',desc:'Designed and executed change strategy. Achieved 92% employee adoption of new operating model within 3 months — exceeding 80% target.'}]}],
+    persona:{style:'Empathetic, thorough',comms:'Written, warm',stakeholder:'Good — mid-management',team:'Supportive, glue',ramp:'Moderate'},
+    personaEvidence:[{trait:'Empathetic, thorough',items:[{source:'Harbour Group — Partner (Carol M.)',detail:'"Jess\'s change comms were exceptional. Employees felt heard, not just told. That\'s why adoption was so high."'}]}],
+    projects:[{dates:'Jan–Jun 2026',name:'Harbour Group — Operating Model Redesign',role:'Change Management',fit:82,clientRating:4.3,satisfaction:4.2,summary:'Change management strategy. 92% employee adoption within 3 months.'}],
+    currentProject:'Harbour Group — Operating Model Redesign',currentProjectLabel:null,currentRole:'Consultant, Change Mgmt',freeIn:'3 wks',freeDate:'25 Jun',freeBadge:'free-soon'
+  },
+  ana: {
+    initials:'AR',name:'Ana Ribeiro',seniority:'Consultant',specialty:'Business Analysis',joined:'Jul 2024',location:'Sydney, NSW',travel:'Open to travel',email:'ana.ribeiro@visagio.com',phone:'+61 421 550 443',mentor:'Monique V.',
+    utilisation:86,avgFit:80,satisfaction:3.9,careerAlign:'Moderate',careerNote:'Exploring product management as next step',
+    bio:'Ana is a sharp, detail-oriented BA with strong technical instincts. Writes precise requirements and catches edge cases others miss. Growing interest in product management.',
+    bio2:'Computer science background. Can read and review code, making her effective at bridging dev and business teams.',
+    interests:['Product thinking','Technical requirements','API design','Edge case analysis','Agile methodology'],
+    topSkills:[{name:'Requirements Engineering',color:'green-accent',note:'Wrote Nexus Digital specs — devs praised clarity'},{name:'Agile/Scrum',color:'accent',note:'Scrum master on Nexus — ran all ceremonies'},{name:'Technical Analysis',color:'accent',note:'Reviews code PRs and translates for stakeholders'}],
+    skills:[{name:'Requirements Engineering',color:'green-accent',evidence:[{project:'Nexus Digital',desc:'Wrote all technical requirements and user stories. Caught 14 edge cases during UAT that would have caused production issues.'},{project:'Apex Telecom',desc:'Product roadmap support — competitive analysis and user story mapping.'}]}],
+    persona:{style:'Detail-oriented, technical',comms:'Precise, written',stakeholder:'Good — technical audiences',team:'Quality enforcer',ramp:'Fast — technical background'},
+    personaEvidence:[{trait:'Detail-oriented, technical',items:[{source:'Nexus Digital — Partner (Priscila B.)',detail:'"Ana caught things in UAT that the dev team missed. She thinks like an engineer, which is rare for a BA."'}]}],
+    projects:[
+      {dates:'Feb–Jun 2026',name:'Nexus Digital — Data Platform Build',role:'Business Analyst',fit:81,clientRating:4.0,satisfaction:3.9,summary:'All technical requirements and user stories. Scrum master. Caught 14 UAT edge cases.'},
+      {dates:'Aug–Jan 2026',name:'Apex Telecom — Product Roadmap',role:'Junior BA',fit:78,clientRating:3.8,satisfaction:3.8,summary:'Product roadmap development, competitive analysis, user story mapping.'}
+    ],
+    currentProject:'Nexus Digital — Data Platform Build',currentProjectLabel:null,currentRole:'Consultant, BA',freeIn:'5 wks',freeDate:'9 Jul',freeBadge:'free-weeks'
+  }
+},
+
+// ─── PROJECTS ─────────────────────────────────────────────────────────────
+projects: {
+  atlas: {
+    name:'Atlas Bank — Digital Transformation',status:'active',statusLabel:'Active',
+    partner:'Jonathan K.',qa:'Winsome C.',team:['sarah','raj'],teamDisplay:'Sarah C., Raj P., +2',started:'Feb 2026',
+    desc:'End-to-end digital transformation of retail banking operations. Phase 2 focused on customer onboarding and KYC automation targeting 60% process reduction.',
+    updated:'Updated 2h ago',
+    timeline:[
+      {date:'2 Jun',type:'decision',title:'Scope expanded to include SME onboarding',desc:'Partner approved adding SME customer segment to Phase 2. Timeline extended 3 weeks. Client agreed to additional budget.',source:'Partner call recording (1 Jun), updated SOW'},
+      {date:'28 May',type:'milestone',title:'Phase 1 KYC automation delivered',desc:'Automated KYC pipeline deployed to staging. 62% process reduction vs 60% target. Client sign-off received.',source:'Delivery report, client email confirmation'},
+      {date:'22 May',type:'personnel',title:'Sarah Chen moved to lead data workstream',desc:'Previously supporting analyst, now leading data migration sub-team. Raj shifted to client-facing delivery coordination.',source:'Team Slack, allocation sheet'},
+      {date:'15 May',type:'risk',title:'Client data quality issues on legacy CRM',desc:'Legacy CRM had 34% incomplete records. Required 2-week remediation sprint. Escalated to partner.',source:'Technical Slack thread, partner escalation email'},
+      {date:'8 May',type:'update',title:'Weekly checkpoint — on track',desc:'Sprint velocity stable. All Phase 1 deliverables tracking to deadline. No blockers.',source:'Weekly standup recording, Jira board'}
+    ],
+    health:{
+      delivery:{pct:78,color:'var(--green-accent)',label:'Milestones on track — 7 of 9 completed',details:[{l:'Phase 1 — KYC Automation',v:'Delivered (62% reduction)'},{l:'Phase 2 — SME Onboarding',v:'In progress (Wk 2/5)'},{l:'Phase 2 — Reporting Suite',v:'Not started'},{l:'Blocked milestones',v:'0'}]},
+      utilisation:{pct:92,color:'#ffc107',label:'Above target — potential overload on Sarah C.',details:[{l:'Sarah Chen',v:'96% (flagged)'},{l:'Raj Patel',v:'91%'},{l:'Contractor 1',v:'88%'},{l:'Contractor 2',v:'85%'}]},
+      comms:{pct:85,color:'var(--green-accent)',label:'14 touchpoints last 2 weeks — up from 11',details:[{l:'Client emails (2 wks)',v:'23 threads'},{l:'Client calls',v:'4 scheduled, 2 ad-hoc'},{l:'Last client meeting',v:'3 Jun (yesterday)'},{l:'Avg response time',v:'2.4 hours'},{l:'Sentiment trend',v:'Stable positive'}]},
+      risk:{value:'1',color:'#ffc107',label:'Data quality remediation in progress. Partner aware.',details:[{l:'Active risk',v:'Legacy CRM — 34% incomplete'},{l:'Mitigation',v:'Remediation sprint (Week 1/2)'},{l:'Owner',v:'Sarah Chen + partner oversight'},{l:'Impact if unresolved',v:'Phase 2 slip (est. 2 wks)'}]}
+    },
+    internalTeam:[{i:'JK',n:'Jonathan K.',r:'Partner · Engagement Lead'},{i:'WC',n:'Winsome C.',r:'QA · Delivery Oversight'},{i:'SC',n:'Sarah Chen',r:'Lead · Data Workstream',accent:true},{i:'RP',n:'Raj Patel',r:'Senior · Client Delivery'}],
+    clientTeam:[{i:'MH',n:'Michael Hargreaves',r:'CTO · Executive Sponsor'},{i:'TL',n:'Tara Liu',r:'Head of Digital · Day-to-day'},{i:'PD',n:'Peter Demetriou',r:'IT Lead · Technical POC'}],
+    docs:[{n:'Statement of Work — Phase 2 (v3)',sub:'Updated 2 Jun · Most referenced this month',c:'var(--green-accent)'},{n:'KYC Automation — Technical Architecture',sub:'Phase 1 deliverable · Client approved',c:'#60a5fa'},{n:'Data Quality Remediation Plan',sub:'Created 16 May · Linked to risk',c:'#c084fc'},{n:'Weekly Status Reports (Archive)',sub:'12 reports · Feb–Jun 2026',c:'var(--w55)'}],
+    allocNeeds:[
+      {role:'Senior Data Engineer',seniority:'Senior (3+ yrs)',duration:'~12 weeks',skills:['Snowflake','dbt','Python','SQL'],persona:'Technical, autonomous',notes:'"Needs someone who can own the data layer without hand-holding. Client CTO is technical — they\'ll test them."',
+        recs:[
+          {id:'liam',fit:91,fitClass:'fit-hi',reasoning:'Strong Snowflake + dbt background from Nexus Digital. Led data workstream independently. Technical CTO rated him highly. Available 4 days after start date.',
+            fitBreakdown:{skills:{score:95,matches:[{skill:'Snowflake',status:'strong',evidence:'Architected full lakehouse on Nexus Digital (8TB, medallion architecture, Snowpipe)'},{skill:'dbt',status:'strong',evidence:'120+ models on Nexus, introduced to Harbour team from scratch'},{skill:'Python',status:'strong',evidence:'Statistical anomaly detection, PII masking, ETL validation — 3 projects'},{skill:'SQL',status:'strong',evidence:'Core competency across all 4 engagements'}]},persona:{score:92,matches:[{trait:'Autonomy',status:'strong',evidence:'Ran Nexus data workstream with minimal oversight — partner: "no hand-holding needed."'},{trait:'Technical stakeholders',status:'strong',evidence:'11 positive meetings with Nexus CTO. Strongest with technical counterparts.'},{trait:'Working style',status:'ok',evidence:'Heads-down, async — fits build phase. May need support for business stakeholder workshops.'}]},availability:{score:82,details:[{l:'Current project ends',v:'12 Jun 2026'},{l:'Atlas start date',v:'16 Jun 2026'},{l:'Gap',v:'4 days (within tolerance)'},{l:'End date confidence',v:'92% — final sprint, deliverables submitted'},{l:'Leave planned',v:'None in next 12 weeks'},{l:'Duration',v:'~12 weeks (through Sep 2026)'}]},experience:{score:90,matches:[{trait:'Seniority',status:'strong',evidence:'Senior Consultant, 2.3 yrs. Led data workstreams on 2 projects.'},{trait:'Domain',status:'ok',evidence:'No banking/fintech but data migration + platform builds transfer. Summit Health closest analogue.'},{trait:'Past performance',status:'strong',evidence:'Avg fit 84%, trending up. Client requested follow-on on Summit Health.'}]},semantic:{score:89,matches:[{trait:'Interpersonal',status:'strong',evidence:'No flags. No prior interaction with Atlas team or client.'},{trait:'Career alignment',status:'ok',evidence:'Wants ML/AI — Atlas is ETL. Consider ML-adjacent next to maintain engagement.'},{trait:'Partner context',status:'strong',evidence:'Priscila: "my first call for anything data-heavy." Jonathan hasn\'t worked with him.'},{trait:'Team fit',status:'strong',evidence:'Atlas team is delivery-heavy. Technical specialist complements existing roles.'}]}},
+            reasoning_full:'Liam is the strongest match because his Snowflake/dbt experience directly maps to Atlas requirements, and his autonomous style matches the partner\'s need. The 4-day gap is minimal. Primary consideration: career alignment — third ETL project. Recommend ML-adjacent next.',
+            considerations:['No banking/fintech domain — may need 1-2 weeks domain onboarding','Third consecutive ETL project — career misalignment risk','Nexus end date 92% confidence — scope extension could slip 1 week']
+          },
+          {id:'kira',fit:74,fitClass:'fit-md',reasoning:'Strong Python and SQL. No Snowflake experience but demonstrated fast ramp-up (Databricks in 2 weeks on Harbour). Immediately available.',
+            fitBreakdown:{skills:{score:68,matches:[{skill:'Python',status:'strong',evidence:'Core competency across 3 projects. Pipeline development and scripting.'},{skill:'SQL',status:'strong',evidence:'Advanced querying, stored procedures — all engagements.'},{skill:'Snowflake',status:'weak',evidence:'No direct experience. Closest: Redshift (AWS) on Harbour Group.'},{skill:'dbt',status:'weak',evidence:'No experience. Would need training.'}]},persona:{score:72,matches:[{trait:'Autonomy',status:'ok',evidence:'Quiet, methodical worker. Reliable but prefers written guidance over verbal.'},{trait:'Technical stakeholders',status:'ok',evidence:'Mostly internal-facing so far. Client CTO interaction untested.'}]},availability:{score:98,details:[{l:'Status',v:'Bench — available immediately'},{l:'Atlas start date',v:'16 Jun 2026'},{l:'Gap',v:'None'},{l:'Leave planned',v:'None'},{l:'Duration',v:'12 weeks — fully available'}]},experience:{score:65,matches:[{trait:'Seniority',status:'ok',evidence:'Senior Consultant but 2 projects only. Less battle-tested than Liam.'},{trait:'Domain',status:'weak',evidence:'Telecom and industrial — no financial services.'},{trait:'Ramp-up',status:'strong',evidence:'Picked up Databricks in 2 weeks. Fast technical learner.'}]},semantic:{score:70,matches:[{trait:'Career alignment',status:'strong',evidence:'Wants cloud architecture — Snowflake experience would be valuable for her growth.'},{trait:'Risk',status:'ok',evidence:'Would need 2-3 week ramp on Snowflake/dbt. Project timeline can absorb this if she starts immediately.'}]}},
+            reasoning_full:'Kira is a solid backup. Immediately available, strong Python/SQL, and historically fast at picking up new tools. The gap is Snowflake/dbt experience — she\'d need a ramp period. Career-wise, this project would be excellent for her growth into cloud architecture.',
+            considerations:['No Snowflake/dbt — 2-3 week ramp needed','Less client-facing experience — CTO meetings may need support','Fewer total projects — less proven in complex environments']
+          }
+        ]
+      },
+      {role:'Business Analyst',seniority:'Consultant (1–2 yrs)',duration:'~8 weeks',skills:['Requirements gathering','Process mapping'],persona:'Strong communicator, detail-oriented',notes:'"Client stakeholders are non-technical. Need someone who translates well."',
+        recs:[
+          {id:'elena',fit:88,fitClass:'fit-hi',reasoning:'Excellent stakeholder communication on 3 engagements. Process mapping was primary deliverable on Meridian. Clients praise her ability to translate technical concepts.',
+            fitBreakdown:{skills:{score:92,matches:[{skill:'Requirements gathering',status:'strong',evidence:'Led requirements for 3 projects — client feedback consistently 4.5+/5.'},{skill:'Process mapping',status:'strong',evidence:'40+ maps on Meridian — adopted by client as their standard.'}]},persona:{score:95,matches:[{trait:'Communication',status:'strong',evidence:'Clients: "clearest communicator we\'ve worked with." UX research background.'},{trait:'Non-technical audiences',status:'strong',evidence:'Excels at translating technical concepts. 3 partners rate this as her key strength.'}]},availability:{score:100,details:[{l:'Status',v:'Bench — available immediately'},{l:'Atlas start',v:'16 Jun'},{l:'Gap',v:'None'},{l:'Duration',v:'8 weeks — fully available'}]},experience:{score:82,matches:[{trait:'Seniority',status:'ok',evidence:'Consultant level, 2 projects. Growing quickly.'},{trait:'Domain',status:'ok',evidence:'Logistics + manufacturing. Banking is new but BA skills transfer.'}]},semantic:{score:88,matches:[{trait:'Career alignment',status:'strong',evidence:'Wants senior BA — this builds her portfolio perfectly.'},{trait:'Team fit',status:'strong',evidence:'Would complement the technical team with stakeholder management skills.'}]}},
+            reasoning_full:'Elena is the strongest BA match. Her communication skills directly address the partner\'s requirement for non-technical stakeholder translation. Immediately available, strong process mapping, and career-aligned.',
+            considerations:['No banking domain experience — needs context briefing','First engagement since rolling off Meridian — ensure smooth onboarding']
+          },
+          {id:'ana',fit:72,fitClass:'fit-md',reasoning:'Solid requirements from Nexus Digital. More technical orientation — good if role evolves to include technical specs. Less experience with non-technical stakeholders.',
+            fitBreakdown:{skills:{score:80,matches:[{skill:'Requirements gathering',status:'strong',evidence:'All Nexus Digital technical specs — devs praised clarity.'},{skill:'Process mapping',status:'ok',evidence:'Limited. More focused on user stories and technical specs.'}]},persona:{score:65,matches:[{trait:'Communication',status:'ok',evidence:'Precise and written. Stronger with technical than non-technical audiences.'},{trait:'Non-technical audiences',status:'weak',evidence:'Less tested. CS background means she defaults to technical language.'}]},availability:{score:70,details:[{l:'Current project',v:'Nexus Digital — ends ~9 Jul'},{l:'Atlas start',v:'16 Jun'},{l:'Gap',v:'Overlap — not available until Jul'},{l:'Duration',v:'Would only cover 4 of 8 weeks if delayed'}]},experience:{score:78,matches:[{trait:'Technical depth',status:'strong',evidence:'Can review code and bridge dev teams — useful if BA role becomes technical.'}]},semantic:{score:72,matches:[{trait:'Career',status:'ok',evidence:'Wants product management — BA role is somewhat aligned but not ideal.'}]}},
+            reasoning_full:'Ana is a backup option with stronger technical depth but weaker non-technical communication skills. The bigger issue is availability — she doesn\'t free up until July, covering only half the engagement.',
+            considerations:['Not available until 9 Jul — misses first 3 weeks','Stronger with technical audiences — may struggle with non-technical client stakeholders','Wants product mgmt, not BA career path']
+          }
+        ]
+      }
+    ]
+  },
+  nexus: {
+    name:'Nexus Digital — Data Platform Build',status:'active',statusLabel:'Active',
+    partner:'Priscila B.',qa:'Monique V.',team:['liam','ana'],teamDisplay:'Liam T., Ana R.',started:'Feb 2026',
+    desc:'Unified customer data platform consolidating 4 legacy systems. Final sprint — lakehouse on Snowflake, go-live 12 Jun.',
+    updated:'Updated 1d ago',
+    timeline:[
+      {date:'3 Jun',type:'milestone',title:'UAT sign-off from client',desc:'All acceptance tests passed. 14 edge cases caught and resolved. Client approved production deployment.',source:'Jira UAT board, client email'},
+      {date:'25 May',type:'decision',title:'Go-live date confirmed: 12 Jun',desc:'Partner and client CTO aligned on deployment date. Rollback plan documented.',source:'Partner call notes'},
+      {date:'18 May',type:'update',title:'Data migration 98% complete',desc:'Final 2% are edge-case records requiring manual review. Liam built anomaly detection to flag remaining issues.',source:'Sprint report, Slack'},
+      {date:'10 May',type:'risk',title:'Performance bottleneck in gold-layer queries',desc:'Dashboard queries hitting 45s on large date ranges. Resolved with clustering keys and materialised views.',source:'Performance monitoring, Git commits'}
+    ],
+    health:{
+      delivery:{pct:95,color:'var(--green-accent)',label:'Final sprint — all deliverables on track for 12 Jun',details:[{l:'Data migration',v:'98% complete'},{l:'dbt model suite',v:'120 models — all tested'},{l:'Dashboards',v:'8 of 8 delivered'},{l:'UAT',v:'Passed — client signed off'}]},
+      utilisation:{pct:88,color:'var(--green-accent)',label:'Well-balanced across team',details:[{l:'Liam Torres',v:'90%'},{l:'Ana Ribeiro',v:'86%'}]},
+      comms:{pct:92,color:'var(--green-accent)',label:'Strong — daily standups with client',details:[{l:'Client emails (2 wks)',v:'18 threads'},{l:'Daily standups',v:'9/10 attended by client'},{l:'Sentiment',v:'Very positive — excited for go-live'}]},
+      risk:{value:'0',color:'var(--green-accent)',label:'No active risks. Performance bottleneck resolved 12 May.',details:[{l:'Resolved',v:'1 (performance — fixed with clustering)'},{l:'Open blockers',v:'None'}]}
+    },
+    internalTeam:[{i:'PB',n:'Priscila B.',r:'Partner · Engagement Lead'},{i:'MV',n:'Monique V.',r:'QA'},{i:'LT',n:'Liam Torres',r:'Senior · Data Engineer',accent:true},{i:'AR',n:'Ana Ribeiro',r:'Consultant · BA'}],
+    clientTeam:[{i:'JR',n:'James Russo',r:'CTO · Sponsor'},{i:'NP',n:'Nina Park',r:'Data Lead · Day-to-day'}],
+    docs:[{n:'Technical Architecture — Lakehouse Design',sub:'Core reference · 34 internal references',c:'var(--green-accent)'},{n:'Go-Live Runbook',sub:'Deployment plan + rollback',c:'#60a5fa'},{n:'UAT Test Results',sub:'14 edge cases resolved',c:'#c084fc'}],
+    allocNeeds:[]
+  },
+  meridian: {
+    name:'Meridian Logistics — Supply Chain Optimisation',status:'flagged',statusLabel:'Flagged',
+    partner:'Winsome C.',qa:'Jonathan K.',team:['miguel'],teamDisplay:'Miguel S., +1',started:'Feb 2026',
+    desc:'End-to-end supply chain visibility for a national logistics provider. Client communication has dropped — V-Brain has flagged for review.',
+    updated:'Updated 14d ago',
+    timeline:[
+      {date:'22 May',type:'risk',title:'Client communication dropped 60%',desc:'No client-initiated contact in 12 days. Previous cadence: 3–4 touchpoints/week. V-Brain auto-flagged.',source:'Communication frequency analysis'},
+      {date:'18 May',type:'milestone',title:'Process maps delivered to client',desc:'Elena completed 40 process maps for warehouse operations. Delivered via email — no acknowledgement.',source:'Email send log'},
+      {date:'5 May',type:'decision',title:'Scope narrowed to distribution only',desc:'Client deferred procurement phase to Q4. Budget reallocation pending.',source:'Partner meeting notes'},
+      {date:'28 Apr',type:'personnel',title:'Elena Morales rolled off',desc:'BA deliverables complete. No replacement allocated. Miguel continuing solo.',source:'Allocation sheet'}
+    ],
+    health:{
+      delivery:{pct:55,color:'#ffc107',label:'Behind plan — scope change created ambiguity',details:[{l:'Process mapping',v:'Delivered (Elena)'},{l:'Efficiency analysis',v:'In progress (Miguel, solo)'},{l:'Implementation roadmap',v:'Not started — blocked by client input'},{l:'Client sign-off',v:'Pending (no response)'}]},
+      utilisation:{pct:70,color:'#ffc107',label:'Team reduced after Elena rolled off',details:[{l:'Miguel Santos',v:'70% — underutilised'}]},
+      comms:{pct:30,color:'#ff6b6b',label:'Critical — no client contact in 14 days',details:[{l:'Last client email',v:'22 May (outbound, no reply)'},{l:'Last call',v:'18 May'},{l:'Missed meetings',v:'2 (client no-shows)'},{l:'Sentiment',v:'Unclear — insufficient data'}]},
+      risk:{value:'3',color:'#ff6b6b',label:'Multiple risks requiring partner intervention.',details:[{l:'Client disengagement',v:'14 days no contact — highest risk'},{l:'Solo consultant',v:'Miguel alone — no BA support'},{l:'Scope ambiguity',v:'Procurement deferral not documented'}]}
+    },
+    internalTeam:[{i:'WC',n:'Winsome C.',r:'Partner · Engagement Lead'},{i:'JK',n:'Jonathan K.',r:'QA'},{i:'MS',n:'Miguel Santos',r:'Consultant'}],
+    clientTeam:[{i:'TB',n:'Tom Bradley',r:'COO · Sponsor'},{i:'LK',n:'Lisa Kim',r:'Head of Logistics · Day-to-day'}],
+    docs:[{n:'Supply Chain Process Maps (40)',sub:'Delivered 18 May · Awaiting feedback',c:'var(--green-accent)'},{n:'Scope Revision — Distribution Focus',sub:'Needs formal sign-off',c:'#ffc107'},{n:'Warehouse Observation Notes',sub:'3 sites · Miguel, Apr–May',c:'var(--w55)'}],
+    allocNeeds:[]
+  },
+  harbour: {
+    name:'Harbour Group — Operating Model Redesign',status:'winding',statusLabel:'Winding Down',
+    partner:'Carol M.',qa:'Priscila B.',team:['david','jess'],teamDisplay:'David L., Jess W.',started:'Jan 2026',
+    desc:'Operating model redesign for a mid-market industrial conglomerate. Final deliverables due mid-July. Two consultants freeing up in ~3 weeks.',
+    updated:'Updated 3d ago',
+    timeline:[
+      {date:'1 Jun',type:'milestone',title:'Board presentation delivered',desc:'David presented the new model to the board. Approved with minor governance adjustments.',source:'Partner debrief email, board recording'},
+      {date:'28 May',type:'update',title:'Change adoption at 92%',desc:'Jess\'s program achieved 92% employee adoption 3 months post-launch. Exceeds 80% target.',source:'Employee survey results'},
+      {date:'15 May',type:'decision',title:'Handover plan agreed',desc:'Client self-manages post June 25. KT sessions scheduled Jun 9 and Jun 16.',source:'Partner call with client CEO'},
+      {date:'5 May',type:'update',title:'Governance framework finalised',desc:'5-layer governance documented. Client leadership trained on decision rights and escalation.',source:'Deliverable submission log'}
+    ],
+    health:{
+      delivery:{pct:92,color:'var(--green-accent)',label:'Near-complete — final handover phase',details:[{l:'Operating model',v:'Delivered — board approved'},{l:'Change management',v:'92% adoption achieved'},{l:'Governance',v:'Finalised and delivered'},{l:'Knowledge transfer',v:'2 weeks remaining'}]},
+      utilisation:{pct:75,color:'var(--green-accent)',label:'Winding down — handover mode',details:[{l:'David Lee',v:'72% (handover mode)'},{l:'Jess Wang',v:'78% (KT sessions)'}]},
+      comms:{pct:80,color:'var(--green-accent)',label:'Consistent — weekly CEO check-ins',details:[{l:'Client calls (2 wks)',v:'3 scheduled + 1 ad-hoc'},{l:'Last contact',v:'2 Jun'},{l:'Relationship',v:'Strong — CEO publicly praised the work'}]},
+      risk:{value:'0',color:'var(--green-accent)',label:'No risks. Clean wind-down.',details:[{l:'Handover',v:'Low risk — 2 KT sessions scheduled'},{l:'Dependency',v:'Self-sustaining post Jun 25'}]}
+    },
+    internalTeam:[{i:'CM',n:'Carol M.',r:'Partner · Engagement Lead'},{i:'PB',n:'Priscila B.',r:'QA'},{i:'DL',n:'David Lee',r:'Senior · Ops Lead',accent:true},{i:'JW',n:'Jess Wang',r:'Consultant · Change Mgmt'}],
+    clientTeam:[{i:'RH',n:'Robert Huang',r:'CEO · Executive Sponsor'},{i:'SK',n:'Sandra Kim',r:'COO · Operating Model Owner'}],
+    docs:[{n:'Operating Model Blueprint (Final)',sub:'Board-approved 1 Jun · 68 references',c:'var(--green-accent)'},{n:'Change Adoption Report',sub:'92% adoption — exceeds target',c:'#60a5fa'},{n:'Governance Framework',sub:'5-layer model · Client trained',c:'#c084fc'},{n:'Knowledge Transfer Schedule',sub:'Jun 9–20 · 8 sessions',c:'var(--w55)'}],
+    allocNeeds:[]
+  }
+},
+
+// ─── ALLOCATION OPEN PROJECTS ────────────────────────────────────────────
+allocOpenProjects:[
+  {id:'atlas',needs:'1× Senior Data Engineer, 1× Business Analyst',start:'16 Jun',deadline:'12 days',openCount:2}
+],
+
+// ─── NOTIFICATIONS ───────────────────────────────────────────────────────
+notifications:[
+  {type:'risk',text:'Client communication on <strong>Meridian Logistics</strong> has dropped 60% over 2 weeks.',time:'2 hours ago'},
+  {type:'allocation',text:'<strong>Atlas Bank</strong> end date may shift — scope extension in partner call. 2 downstream allocations affected.',time:'5 hours ago'},
+  {type:'update',text:'<strong>Harbour Group</strong> board approved operating model. 92% change adoption achieved.',time:'Yesterday'}
+],
+
+// ─── FORECAST ────────────────────────────────────────────────────────────
+forecastCurrent:{
+  available:7,freeingUp:12,demand:9,net:'+10',
+  rows:[{label:'Seniors',supply:65,demand:50,nums:'8 / 6'},{label:'Managers',supply:35,demand:55,nums:'4 / 6'},{label:'Consultants',supply:80,demand:40,nums:'10 / 5'}]
+},
+forecastHistory:[
+  {week:'Apr W3',fc:65,ac:50,d:'−2',cls:'fh-neg'},
+  {week:'Apr W4',fc:55,ac:60,d:'0',cls:'fh-ok'},
+  {week:'May W1',fc:75,ac:55,d:'−3',cls:'fh-neg'},
+  {week:'May W2',fc:50,ac:55,d:'+1',cls:'fh-pos'},
+  {week:'May W3',fc:70,ac:75,d:'+1',cls:'fh-pos'},
+  {week:'May W4',fc:80,ac:60,d:'−3',cls:'fh-neg'}
+]
+};
+
+/* ==========================================================================
+   RENDER ENGINE — State management + DOM helpers
+   ========================================================================== */
+let state = { screen:'dashboard', project:'atlas', consultant:'liam', fitModal:null };
+
+function go(screen, opts) {
+  return (e) => {
+    if (e) e.stopPropagation();
+    if (opts?.project) state.project = opts.project;
+    if (opts?.consultant) state.consultant = opts.consultant;
+    state.screen = screen;
+    state.fitModal = null;
+    render();
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+}
+
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  app.appendChild(renderNav());
+  app.appendChild(renderNotifPanel());
+  const screens = {dashboard:renderDashboard,project:renderProjectView,'alloc-list':renderAllocList,'alloc-detail':renderAllocDetail,profile:renderProfile};
+  const fn = screens[state.screen] || renderDashboard;
+  const s = fn();
+  s.classList.add('screen','active');
+  app.appendChild(s);
+  if (state.fitModal) app.appendChild(renderFitModal(state.fitModal));
+  document.addEventListener('click', () => { const np = document.getElementById('np'); if(np) np.classList.remove('on'); }, {once:true});
+}
+
+// ─── SVG ICON HELPERS ────────────────────────────────────────────────────
+const ICO = {
+  search:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+  back:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>',
+  arrow:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>',
+  chev:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>',
+  bell:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
+  plus:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  archive:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>',
+  doc:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="COLOUR" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+  users:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  pulse:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+  book:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+  grid:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>',
+  warn:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  mail:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
+  phone:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg>',
+  loc:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'
+};
+
+// ─── REUSABLE COMPONENT BUILDERS ─────────────────────────────────────────
+function mkAvatar(initials, extra) { return `<div class="av ${extra||''}">${initials}</div>`; }
+function mkBadge(status) {
+  const map = {active:'badge-active',flagged:'badge-flagged',winding:'badge-winding'};
+  return `<span class="badge ${map[status]||''}"><span class="badge-dot"></span> ${({active:'Active',flagged:'Flagged',winding:'Winding Down'})[status]||status}</span>`;
+}
+function mkSkeleton() { return `<div class="sk h20 w60"></div><div class="sk w100"></div><div class="sk w90"></div><div class="sk w80"></div><div style="height:12px"></div><div class="sk w70"></div><div class="sk w100"></div><div class="sk w60"></div>`; }
+function fitColor(v) { return v >= 80 ? 'var(--green-accent)' : v >= 65 ? '#ffc107' : '#ff6b6b'; }
+function fitClass(v) { return v >= 80 ? 'fit-hi' : 'fit-md'; }
+
+/* ==========================================================================
+   NAV + NOTIFICATIONS
+   ========================================================================== */
+function renderNav() {
+  const n = document.createElement('nav');
+  n.className = 'topnav';
+  n.innerHTML = `<div class="topnav-logo" id="navHome"><div class="brain-dot"></div><span><span class="v">V</span>-brain</span></div><div class="topnav-right"><div class="notif-btn" id="notifToggle">${ICO.bell}<span class="notif-badge">${DATA.notifications.length}</span></div><div class="avatar">SS</div></div>`;
+  setTimeout(()=>{
+    document.getElementById('navHome').onclick = go('dashboard');
+    document.getElementById('notifToggle').onclick = (e)=>{ e.stopPropagation(); document.getElementById('np')?.classList.toggle('on'); };
+  },0);
+  return n;
+}
+
+function renderNotifPanel() {
+  const d = document.createElement('div');
+  d.className = 'np'; d.id = 'np';
+  d.innerHTML = `<div class="np-hd"><span>Notifications</span><span style="font-size:11px;color:var(--green-accent);cursor:pointer;font-weight:500">Mark all read</span></div>` +
+    DATA.notifications.map(n => `<div class="np-item"><div class="np-type np-${n.type==='allocation'?'alloc':n.type==='update'?'upd':n.type}">${n.type}</div><div class="np-txt">${n.text}</div><div class="np-time">${n.time}</div></div>`).join('');
+  d.onclick = (e) => e.stopPropagation();
+  return d;
+}
+
+/* ==========================================================================
+   SCREEN 1: DASHBOARD
+   ========================================================================== */
+function renderDashboard() {
+  const s = document.createElement('div');
+  const shell = document.createElement('div');
+  shell.className = 'shell';
+
+  // Search bar
+  shell.innerHTML = `<div class="dash-topbar"><div class="search-bar">${ICO.search}<input type="text" placeholder="Search projects by name, description, client…" id="dashQ"></div><div class="icon-btn">${ICO.archive}</div><div class="add-btn">${ICO.plus} New project</div></div><div class="section-label">Active Projects</div><div id="pList"></div>`;
+
+  // Suite grid
+  shell.innerHTML += `<div class="section-label" style="margin-top:36px">V-Brain Suite</div><div class="suite-grid"><div class="suite-tile on" id="goAlloc"><div class="s-icon">${ICO.users}</div><div class="s-name">V-Allocate</div></div><div class="suite-tile off"><span class="s-badge">Soon</span><div class="s-icon">${ICO.pulse}</div><div class="s-name">V-Insight</div></div><div class="suite-tile off"><span class="s-badge">Soon</span><div class="s-icon">${ICO.book}</div><div class="s-name">V-Develop</div></div><div class="suite-tile off"><span class="s-badge">Soon</span><div class="s-icon">${ICO.grid}</div><div class="s-name">V-Deliver</div></div></div>`;
+
+  s.appendChild(shell);
+
+  setTimeout(()=>{
+    document.getElementById('goAlloc').onclick = go('alloc-list');
+    const list = document.getElementById('pList');
+    function drawProjects(q) {
+      list.innerHTML = '';
+      const query = (q||'').toLowerCase();
+      let found = false;
+      Object.entries(DATA.projects).forEach(([pid, p]) => {
+        if (query && !p.name.toLowerCase().includes(query) && !p.desc.toLowerCase().includes(query)) return;
+        found = true;
+        const card = document.createElement('div');
+        card.className = 'p-card';
+        card.onclick = go('project',{project:pid});
+        card.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">${mkBadge(p.status)}</div><div class="p-info"><div class="p-name">${p.name}</div><div class="p-meta"><span><b>Partner:</b> ${p.partner}</span><span><b>QA:</b> ${p.qa}</span><span><b>Team:</b> ${p.teamDisplay}</span></div><div class="p-desc">${p.desc}</div></div><div class="p-right"><div class="p-updated">${p.updated}</div><span class="p-arrow">${ICO.arrow}</span></div>`;
+        list.appendChild(card);
+      });
+      if (!found) list.innerHTML = '<div style="padding:40px;text-align:center;color:var(--w35)">No projects match your search.</div>';
+    }
+    drawProjects('');
+    document.getElementById('dashQ').oninput = (e) => drawProjects(e.target.value);
+  },0);
+
+  return s;
+}
+
+/* ==========================================================================
+   SCREEN 2: PROJECT VIEW (5 tabs)
+   ========================================================================== */
+function renderProjectView() {
+  const p = DATA.projects[state.project];
+  if (!p) return document.createElement('div');
+  const s = document.createElement('div');
+  const shell = document.createElement('div');
+  shell.className = 'shell';
+
+  // Header
+  shell.innerHTML = `<div class="hdr"><div class="back-btn" id="pBack">${ICO.back}</div><div class="hdr-title">${p.name}</div>${mkBadge(p.status)}</div><div class="hdr-sub">Partner: ${p.partner} · QA: ${p.qa} · Team: ${p.teamDisplay} · Started ${p.started}</div>`;
+
+  // Tabs
+  const tabNames = ['Timeline','Get Up to Speed','Project Health','Stakeholders','Knowledge Base'];
+  const tabIds = ['tl','gus','health','stak','kb'];
+  let tabBarHtml = '<div class="tab-bar">';
+  tabNames.forEach((t,i) => { tabBarHtml += `<div class="tab${i===0?' on':''}" data-tab="${tabIds[i]}">${t}</div>`; });
+  tabBarHtml += '</div>';
+  shell.innerHTML += tabBarHtml;
+
+  // ── Timeline tab ──
+  const filterTypes = [{k:'all',l:'All'},{k:'decision',l:'Decisions'},{k:'milestone',l:'Milestones'},{k:'risk',l:'Risks'},{k:'update',l:'Updates'},{k:'personnel',l:'Personnel'}];
+  let tlHtml = `<div class="tc on" id="tc-tl"><div class="tl-filters" id="tlFilters">`;
+  filterTypes.forEach(f => { tlHtml += `<div class="chip${f.k==='all'?' on':''}" data-filter="${f.k}">${f.l}</div>`; });
+  tlHtml += `</div><div id="tlList"></div></div>`;
+  shell.innerHTML += tlHtml;
+
+  // ── Get Up to Speed ──
+  const briefs = [{n:1,t:'What is this project?',sub:'Client, scope, objectives, commercial structure'},{n:2,t:'What\'s happened so far?',sub:'Key events, synthesised narrative'},{n:3,t:'What do I need to do?',sub:'Role-specific context, immediate actions, contacts'}];
+  let gusHtml = '<div class="tc" id="tc-gus">';
+  briefs.forEach((b,i) => {
+    gusHtml += `<div class="brief${i===0?' open':''}"><div class="brief-hd"><div class="brief-left"><div class="brief-num">${b.n}</div><div><div class="brief-t">${b.t}</div><div class="brief-st">${b.sub}</div></div></div><span class="brief-chev">${ICO.chev}</span></div><div class="brief-bd"><div class="brief-inner">${mkSkeleton()}</div></div></div>`;
+  });
+  gusHtml += '</div>';
+  shell.innerHTML += gusHtml;
+
+  // ── Health tab ──
+  function healthCard(label, data, isRisk) {
+    let det = '';
+    if (data.details) det = '<div class="h-detail">' + data.details.map(d=>`<div class="h-drow"><span class="h-dl">${d.l}</span><span class="h-dv">${d.v}</span></div>`).join('') + '</div>';
+    if (isRisk) return `<div class="h-card"><div class="h-label">${label}</div><div style="display:flex;align-items:center;gap:10px;margin-top:8px"><div class="h-val" style="color:${data.color}">${data.value}</div><div class="h-sub" style="margin:0">${data.label}</div></div>${det}</div>`;
+    return `<div class="h-card"><div class="h-label">${label}</div><div class="h-bar-t"><div class="h-bar-f" style="width:${data.pct}%;background:${data.color}"></div></div><div class="h-val" style="color:${data.color}">${data.pct}%</div><div class="h-sub">${data.label}</div>${det}</div>`;
+  }
+  shell.innerHTML += `<div class="tc" id="tc-health"><div class="h-grid">${healthCard('Delivery Against Plan',p.health.delivery)}${healthCard('Team Utilisation',p.health.utilisation)}${healthCard('Client Communication',p.health.comms)}${healthCard('Risk Signals',p.health.risk,true)}</div></div>`;
+
+  // ── Stakeholders ──
+  shell.innerHTML += `<div class="tc" id="tc-stak"><div class="st-grid"><div><div class="st-label">Internal Team</div>${p.internalTeam.map(s=>`<div class="st-card">${mkAvatar(s.i,s.accent?'av-accent':'')} <div><div class="st-name">${s.n}</div><div class="st-role">${s.r}</div></div></div>`).join('')}</div><div><div class="st-label">Client Side</div>${p.clientTeam.map(s=>`<div class="st-card">${mkAvatar(s.i,'av-blue')} <div><div class="st-name">${s.n}</div><div class="st-role">${s.r}</div></div></div>`).join('')}<div style="margin-top:16px;padding:12px 16px;border-radius:var(--r-md);background:var(--w04);border:1px dashed var(--w12)"><div style="font-size:11px;color:var(--w35);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Communication Pattern</div><div style="width:100%;height:80px;border-radius:8px;background:linear-gradient(90deg,var(--w04) 0%,var(--w08) 50%,var(--w04) 100%);background-size:400px 80px;animation:shimmer 1.8s infinite linear"></div></div></div></div></div>`;
+
+  // ── Knowledge Base ──
+  shell.innerHTML += `<div class="tc" id="tc-kb"><div class="section-label">Key Documents</div><div style="display:flex;flex-direction:column;gap:8px">${p.docs.map(d=>`<div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--w02);border:1px solid var(--w08);border-radius:var(--r-md);cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='var(--w20)'" onmouseout="this.style.borderColor='var(--w08)'">${ICO.doc.replace('COLOUR',d.c)}<div style="flex:1"><div style="font-size:13px;font-weight:600">${d.n}</div><div style="font-size:11px;color:var(--w35)">${d.sub}</div></div></div>`).join('')}</div></div>`;
+
+  s.appendChild(shell);
+
+  // Wire events
+  setTimeout(()=>{
+    document.getElementById('pBack').onclick = go('dashboard');
+    // Tab switching
+    shell.querySelectorAll('.tab').forEach(tb => {
+      tb.onclick = () => {
+        shell.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+        tb.classList.add('on');
+        shell.querySelectorAll('.tc').forEach(x=>x.classList.remove('on'));
+        document.getElementById('tc-'+tb.dataset.tab)?.classList.add('on');
+      };
+    });
+    // Briefing toggles
+    shell.querySelectorAll('.brief-hd').forEach(h => { h.onclick = () => h.closest('.brief').classList.toggle('open'); });
+    // Timeline rendering + filtering
+    function drawTimeline(filter) {
+      const el = document.getElementById('tlList');
+      el.innerHTML = '';
+      const items = filter === 'all' ? p.timeline : p.timeline.filter(e=>e.type===filter);
+      items.forEach((ev,i) => {
+        el.innerHTML += `<div class="tl-item"><div class="tl-date">${ev.date}</div><div class="tl-dot-col"><div class="tl-dot dot-${ev.type}"></div>${i<items.length-1?'<div class="tl-line"></div>':''}</div><div class="tl-body"><span class="tl-tag tag-${ev.type}">${ev.type}</span><div class="tl-title">${ev.title}</div><div class="tl-desc">${ev.desc}</div><div class="tl-source">Inferred from: ${ev.source}</div></div></div>`;
+      });
+      if (!items.length) el.innerHTML = '<div style="padding:30px;text-align:center;color:var(--w35)">No events of this type.</div>';
+    }
+    drawTimeline('all');
+    document.getElementById('tlFilters').querySelectorAll('.chip').forEach(c => {
+      c.onclick = () => {
+        document.getElementById('tlFilters').querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+        c.classList.add('on');
+        drawTimeline(c.dataset.filter);
+      };
+    });
+  },0);
+
+  return s;
+}
+
+/* ==========================================================================
+   SCREEN 3: V-ALLOCATE LIST
+   ========================================================================== */
+function renderAllocList() {
+  const s = document.createElement('div');
+  const shell = document.createElement('div');
+  shell.className = 'shell';
+
+  // Header
+  shell.innerHTML = `<div class="hdr"><div class="back-btn" id="alBack">${ICO.back}</div><div class="hdr-title" style="font-size:22px">V-Allocate</div></div><div class="hdr-sub">Projects with open allocations and firmwide capacity</div>`;
+
+  // Allocation cards — iterate over data
+  let cardsHtml = '';
+  DATA.allocOpenProjects.forEach(ap => {
+    const pData = DATA.projects[ap.id];
+    const name = pData ? pData.name : ap.id;
+    const hasNeeds = pData && pData.allocNeeds && pData.allocNeeds.length > 0;
+    cardsHtml += `<div class="al-card" data-pid="${ap.id}" ${hasNeeds?'data-clickable="1"':''}><div class="al-bar"></div><div style="display:flex;align-items:center;gap:16px"><div><div class="al-name">${name}</div><div class="al-needs">Needs: ${ap.needs} · Start: ${ap.start}</div></div></div><div class="al-right"><div class="al-deadline">${ap.deadline}</div><div class="al-count">${ap.openCount} open</div>${ICO.arrow.replace('currentColor','var(--w35)')}</div></div>`;
+  });
+  shell.innerHTML += cardsHtml;
+
+  // ── Capacity Forecast ──
+  const fc = DATA.forecastCurrent;
+  const fh = DATA.forecastHistory;
+  shell.innerHTML += `<div style="margin-top:36px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div class="section-label" style="margin:0">Capacity Forecast</div><div class="f-toggle"><div class="f-btn on" data-fv="fc">Current</div><div class="f-btn" data-fv="fh">Past vs Actual</div></div></div>`;
+
+  // Current forecast view
+  shell.innerHTML += `<div class="f-view on" id="fv-fc"><div style="padding:24px;background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg)"><div style="display:flex;gap:20px;margin-bottom:20px">${[{l:'Available Now',v:fc.available,c:'var(--green-accent)'},{l:'Freeing Up (4 wks)',v:fc.freeingUp,c:'var(--accent)'},{l:'Demand (4 wks)',v:fc.demand,c:'var(--offwhite)'},{l:'Net Position',v:fc.net,c:'var(--green-light)'}].map(b=>`<div style="flex:1;text-align:center;padding:14px;border-radius:var(--r-md);background:var(--w04)"><div style="font-size:10px;color:var(--w35);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">${b.l}</div><div style="font-size:28px;font-weight:700;color:${b.c}">${b.v}</div></div>`).join('')}</div><div style="font-size:12px;font-weight:600;color:var(--w55);margin-bottom:12px">Supply vs Demand by Seniority</div>${fc.rows.map(r=>`<div class="cap-row"><div class="cap-lbl">${r.label}</div><div class="cap-trk"><div class="cap-supply" style="width:${r.supply}%"></div><div class="cap-demand" style="width:${r.demand}%"></div></div><div class="cap-num">${r.nums}</div></div>`).join('')}<div style="display:flex;gap:14px;margin-top:14px;justify-content:flex-end"><div style="display:flex;align-items:center;gap:5px"><div style="width:14px;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--teal-mid),var(--accent))"></div><span style="font-size:10px;color:var(--w35)">Supply</span></div><div style="display:flex;align-items:center;gap:5px"><div style="width:14px;height:6px;border-radius:3px;background:rgba(255,107,107,.25);border-right:2px solid #ff6b6b"></div><span style="font-size:10px;color:var(--w35)">Demand</span></div></div></div></div>`;
+
+  // History forecast view
+  shell.innerHTML += `<div class="f-view" id="fv-fh"><div style="padding:24px;background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg)"><div style="font-size:13px;font-weight:600;margin-bottom:16px">Forecast Accuracy — Last 6 Weeks</div>${fh.map(r=>`<div class="fh-row"><div class="fh-lbl">${r.week}</div><div class="fh-bars"><div class="fh-bar fh-fc" style="width:${r.fc}%"><span>Forecast</span></div><div class="fh-bar fh-ac" style="width:${r.ac}%"><span>Actual</span></div></div><div class="fh-d ${r.cls}">${r.d}</div></div>`).join('')}<div style="display:flex;gap:16px;margin-top:16px;padding-top:14px;border-top:1px solid var(--w08)"><div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:4px;border-radius:2px;background:var(--accent)"></div><span style="font-size:11px;color:var(--w55)">Forecasted</span></div><div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:4px;border-radius:2px;background:var(--green-light)"></div><span style="font-size:11px;color:var(--w55)">Actual</span></div><div style="flex:1;text-align:right;font-size:11px;color:var(--w35)">Avg accuracy: 82%</div></div></div></div></div>`;
+
+  // ── Current Allocations Table ──
+  shell.innerHTML += `<div style="margin-top:36px"><div class="section-label">Current Allocations</div><div style="background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg);overflow:hidden"><div class="at-hd"><div>Consultant</div><div>Current Project</div><div>Role</div><div>Free In</div><div>Available</div></div><div id="allocRows"></div></div></div>`;
+
+  s.appendChild(shell);
+
+  setTimeout(()=>{
+    document.getElementById('alBack').onclick = go('dashboard');
+    // Alloc card clicks
+    shell.querySelectorAll('.al-card[data-clickable]').forEach(c => {
+      c.onclick = go('alloc-detail',{project:c.dataset.pid});
+    });
+    // Forecast toggle
+    shell.querySelectorAll('.f-btn').forEach(btn => {
+      btn.onclick = () => {
+        shell.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('on'));
+        btn.classList.add('on');
+        shell.querySelectorAll('.f-view').forEach(v=>v.classList.remove('on'));
+        document.getElementById('fv-'+btn.dataset.fv)?.classList.add('on');
+      };
+    });
+    // Alloc table rows — iterate consultants
+    const tbody = document.getElementById('allocRows');
+    Object.entries(DATA.consultants).forEach(([cid,c]) => {
+      const row = document.createElement('div');
+      row.className = 'at-row';
+      row.onclick = go('profile',{consultant:cid});
+      const proj = c.currentProject || c.currentProjectLabel;
+      const projStyle = !c.currentProject ? 'color:var(--green-accent);font-style:italic' : '';
+      row.innerHTML = `<div class="at-name">${mkAvatar(c.initials)} <span>${c.name}</span></div><div class="at-proj" style="${projStyle}">${proj}</div><div class="at-role">${c.currentRole}</div><div><span class="free ${c.freeBadge}">${c.freeIn}</span></div><div class="at-date">${c.freeDate}</div>`;
+      tbody.appendChild(row);
+    });
+  },0);
+
+  return s;
+}
+
+/* ==========================================================================
+   SCREEN 4: V-ALLOCATE DETAIL (two-panel: demand + supply)
+   ========================================================================== */
+function renderAllocDetail() {
+  const p = DATA.projects[state.project];
+  if (!p || !p.allocNeeds.length) return document.createElement('div');
+  const s = document.createElement('div');
+  const shell = document.createElement('div');
+  shell.className = 'shell';
+
+  shell.innerHTML = `<div class="hdr"><div class="back-btn" id="adBack">${ICO.back}</div><div class="hdr-title" style="font-size:20px">${p.name.split('—')[0]}— Allocation</div><div class="al-count" style="margin-left:10px">${p.allocNeeds.length} role${p.allocNeeds.length>1?'s':''}</div></div><div class="hdr-sub">${p.allocNeeds.map(n=>n.role).join(' | ')}</div>`;
+
+  // ── Demand panel ──
+  let demandHtml = '<div class="panel"><div class="panel-t">Project Requirements</div>';
+  p.allocNeeds.forEach((need,i) => {
+    if (i > 0) demandHtml += '<div style="height:1px;background:var(--w08);margin:16px 0"></div>';
+    demandHtml += `<div><div style="font-size:13px;font-weight:600;color:var(--green-light);margin-bottom:12px">Role ${i+1}: ${need.role}</div>`;
+    demandHtml += `<div class="rr"><span class="rr-l">Seniority</span><span class="rr-v">${need.seniority}</span></div>`;
+    demandHtml += `<div class="rr"><span class="rr-l">Duration</span><span class="rr-v">${need.duration}</span></div>`;
+    demandHtml += `<div class="rr"><span class="rr-l">Skills</span><span class="rr-v">${need.skills.map(sk=>`<span class="stag">${sk}</span>`).join('')}</span></div>`;
+    demandHtml += `<div class="rr"><span class="rr-l">Persona</span><span class="rr-v">${need.persona}</span></div>`;
+    demandHtml += `<div class="rr"><span class="rr-l">Partner Notes</span><span class="rr-v" style="color:var(--w55);font-style:italic;font-size:12px">${need.notes}</span></div></div>`;
+  });
+  demandHtml += '</div>';
+
+  // ── Supply panel ──
+  let supplyHtml = '<div class="panel"><div class="panel-t">Recommended Consultants</div>';
+  p.allocNeeds.forEach((need,ni) => {
+    if (ni > 0) supplyHtml += '<div style="height:1px;background:var(--w08);margin:18px 0"></div>';
+    supplyHtml += `<div style="font-size:11px;font-weight:600;color:var(--w35);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">For: ${need.role}</div>`;
+    need.recs.forEach(rec => {
+      const c = DATA.consultants[rec.id];
+      if (!c) return;
+      const availLabel = c.freeIn === 'Now' ? 'Available now' : `Ending in ${c.freeIn}`;
+      const availCls = c.freeBadge === 'free-now' ? 'cc-avail' : 'cc-ending';
+      supplyHtml += `<div class="cc" data-cid="${rec.id}" data-ni="${ni}" data-ri="${need.recs.indexOf(rec)}"><div class="cc-top"><div class="cc-nr">${mkAvatar(c.initials,'av-accent')}<div><div class="cc-name">${c.name}</div><span class="cc-stat ${availCls}">${availLabel}</span></div></div><div class="cc-fit ${fitClass(rec.fit)}">${rec.fit}%</div></div><div class="fb-t"><div class="fb-f" style="width:${rec.fit}%;background:${fitColor(rec.fit)}"></div></div><div class="cc-reason">${rec.reasoning}</div><div class="cc-link" data-fitopen="1">View full breakdown →</div></div>`;
+    });
+  });
+  supplyHtml += '</div>';
+
+  shell.innerHTML += `<div class="panels">${demandHtml}${supplyHtml}</div>`;
+  s.appendChild(shell);
+
+  setTimeout(()=>{
+    document.getElementById('adBack').onclick = go('alloc-list');
+    // Consultant card click → profile
+    shell.querySelectorAll('.cc').forEach(card => {
+      card.onclick = (e) => {
+        if (e.target.closest('[data-fitopen]')) {
+          // Open fit modal
+          const ni = parseInt(card.dataset.ni);
+          const ri = parseInt(card.dataset.ri);
+          const need = p.allocNeeds[ni];
+          const rec = need.recs[ri];
+          state.fitModal = { rec, need, consultant: DATA.consultants[rec.id] };
+          render();
+          return;
+        }
+        go('profile',{consultant:card.dataset.cid})();
+      };
+    });
+  },0);
+
+  return s;
+}
+
+/* ==========================================================================
+   SCREEN 5: CONSULTANT PROFILE (4 tabs)
+   ========================================================================== */
+function renderProfile() {
+  const c = DATA.consultants[state.consultant];
+  if (!c) return document.createElement('div');
+  const s = document.createElement('div');
+  const shell = document.createElement('div');
+  shell.className = 'shell';
+
+  // Header
+  shell.innerHTML = `<div class="hdr"><div class="back-btn" id="prBack">${ICO.back}</div><div style="display:flex;align-items:center;gap:14px">${mkAvatar(c.initials,'av-accent')}<div><div class="hdr-title" style="margin:0">${c.name}</div><div style="font-size:14px;color:var(--w55)">${c.seniority} · ${c.specialty}</div></div></div></div>`;
+
+  // Tabs
+  const tabs = ['Overview','Skills & Persona','Past Projects','Satisfaction & Fit'];
+  const tids = ['ov','skp','hist','sat'];
+  let tbHtml = '<div class="tab-bar" style="margin-top:20px">';
+  tabs.forEach((t,i) => { tbHtml += `<div class="tab${i===0?' on':''}" data-ptab="${tids[i]}">${t}</div>`; });
+  tbHtml += '</div>';
+  shell.innerHTML += tbHtml;
+
+  // ── Overview Tab ──
+  const lastProj = c.projects[0];
+  let ovHtml = `<div class="ptab on" id="pt-ov"><div style="display:grid;grid-template-columns:1.2fr 1fr;gap:20px;margin-bottom:24px"><div style="padding:22px;background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg)"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:14px">Contact & Details</div><div class="ov-row">${ICO.mail} ${c.email}</div><div class="ov-row">${ICO.phone} ${c.phone}</div><div class="ov-row">${ICO.loc} ${c.location} · ${c.travel}</div><div class="ov-row"><span style="color:var(--w35)">Joined</span> ${c.joined}</div><div class="ov-row"><span style="color:var(--w35)">Mentor</span> ${c.mentor}</div></div><div style="padding:22px;background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg)"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:14px">Key Metrics</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">${[{l:'Utilisation',v:c.utilisation+'%',clr:c.utilisation>90?'#ffc107':'var(--green-accent)'},{l:'Avg Fit Score',v:c.avgFit+'%',clr:fitColor(c.avgFit)},{l:'Satisfaction',v:c.satisfaction+'/5',clr:c.satisfaction>=4?'var(--green-accent)':'var(--w70)'},{l:'Career Align',v:c.careerAlign,clr:'var(--w70)'}].map(m=>`<div style="padding:10px;border-radius:var(--r-sm);background:var(--w04)"><div style="font-size:10px;color:var(--w35);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">${m.l}</div><div style="font-size:18px;font-weight:700;color:${m.clr}">${m.v}</div></div>`).join('')}</div></div></div>`;
+
+  // Bio
+  ovHtml += `<div style="padding:18px 22px;background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg);margin-bottom:16px"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:10px">Who They Are</div><div style="font-size:13px;line-height:1.6;color:var(--w70);margin-bottom:8px">${c.bio}</div><div style="font-size:13px;line-height:1.6;color:var(--w55)">${c.bio2}</div></div>`;
+
+  // Interests
+  ovHtml += `<div style="padding:16px 22px;background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg);margin-bottom:16px"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:10px">Interests & Drivers</div><div style="display:flex;flex-wrap:wrap;gap:6px">${c.interests.map(i=>`<span class="ov-int">${i}</span>`).join('')}</div></div>`;
+
+  // Last project summary
+  if (lastProj) {
+    ovHtml += `<div style="padding:18px 22px;background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg);margin-bottom:16px"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:10px">Last Project</div><div style="font-size:14px;font-weight:600;margin-bottom:4px">${lastProj.name}</div><div style="font-size:12px;color:var(--w55);margin-bottom:8px">${lastProj.role} · ${lastProj.dates}</div><div style="font-size:13px;line-height:1.55;color:var(--w70)">${lastProj.summary}</div><div style="display:flex;gap:20px;margin-top:10px;padding-top:10px;border-top:1px solid var(--w08)">${[{l:'Fit',v:lastProj.fit+'%'},{l:'Client',v:lastProj.clientRating+'/5'},{l:'Satisfaction',v:lastProj.satisfaction+'/5'}].map(m=>`<div><span style="font-size:10px;color:var(--w35);text-transform:uppercase">${m.l}</span> <span style="font-size:13px;font-weight:600">${m.v}</span></div>`).join('')}</div></div>`;
+  }
+
+  // Top skills (summary)
+  ovHtml += `<div style="padding:18px 22px;background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg)"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:12px">Top Skills</div>${c.topSkills.map(sk=>`<div class="ov-sk"><span class="stag" style="border-color:var(--${sk.color});color:var(--${sk.color})">${sk.name}</span><span class="ov-sn">${sk.note}</span></div>`).join('')}</div>`;
+  ovHtml += '</div>';
+  shell.innerHTML += ovHtml;
+
+  // ── Skills & Persona Tab ──
+  let skpHtml = '<div class="ptab" id="pt-skp">';
+  // Skills with evidence
+  skpHtml += '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:16px">Skills · Detailed Evidence</div>';
+  (c.skills || c.topSkills).forEach(sk => {
+    skpHtml += `<div class="skd"><div class="skd-hd"><span class="stag" style="border-color:var(--${sk.color});color:var(--${sk.color})">${sk.name}</span></div>`;
+    if (sk.evidence) {
+      skpHtml += '<div class="skd-ev">';
+      sk.evidence.forEach(ev => {
+        skpHtml += `<div class="skd-ei"><div class="skd-ep">${ev.project}</div><div class="skd-ed">${ev.desc}</div></div>`;
+      });
+      skpHtml += '</div>';
+    } else if (sk.note) {
+      skpHtml += `<div style="font-size:12px;color:var(--w55);padding-left:12px;border-left:2px solid var(--w08);margin-left:4px">${sk.note}</div>`;
+    }
+    skpHtml += '</div>';
+  });
+
+  // Persona
+  skpHtml += '<div style="height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.2;margin:28px 0"></div>';
+  skpHtml += '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:16px">Persona Summary</div>';
+  Object.entries(c.persona).forEach(([k,v]) => {
+    skpHtml += `<div class="pr"><span class="pr-l">${({style:'Working Style',comms:'Communication',stakeholder:'Stakeholder Mgmt',team:'Team Dynamic',ramp:'Ramp-up Speed'})[k]||k}</span><span class="pr-v">${v}</span></div>`;
+  });
+
+  // Persona evidence
+  if (c.personaEvidence && c.personaEvidence.length) {
+    skpHtml += '<div style="margin-top:20px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:14px">Persona Evidence</div>';
+    c.personaEvidence.forEach(pe => {
+      skpHtml += `<div class="pe-block"><div class="pe-trait">${pe.trait}</div><div class="pe-items">`;
+      pe.items.forEach(it => {
+        skpHtml += `<div class="pe-item"><div class="pe-src">${it.source}</div><div class="pe-det">${it.detail}</div></div>`;
+      });
+      skpHtml += '</div></div>';
+    });
+  }
+  skpHtml += '</div>';
+  shell.innerHTML += skpHtml;
+
+  // ── Past Projects Tab ──
+  let histHtml = '<div class="ptab" id="pt-hist"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:16px">Project History</div>';
+  c.projects.forEach(proj => {
+    histHtml += `<div class="ph"><div><div class="ph-dates">${proj.dates}</div><div class="ph-name">${proj.name}</div><div class="ph-role">${proj.role}</div><div style="font-size:12px;line-height:1.5;color:var(--w55);margin-top:8px">${proj.summary}</div></div><div class="ph-right"><div class="ph-m"><span class="ph-ml">Fit</span><span class="ph-mv" style="color:${fitColor(proj.fit)}">${proj.fit}%</span></div><div class="ph-m"><span class="ph-ml">Client</span><span class="ph-mv">${proj.clientRating}</span></div><div class="ph-m"><span class="ph-ml">Sat.</span><span class="ph-mv">${proj.satisfaction}</span></div></div></div>`;
+  });
+  histHtml += '</div>';
+  shell.innerHTML += histHtml;
+
+  // ── Satisfaction & Fit Tab ──
+  let satHtml = '<div class="ptab" id="pt-sat">';
+  satHtml += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px"><div style="padding:22px;background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg)"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:10px">Fit Score Trend</div>`;
+  // Mini chart using bars
+  satHtml += '<div style="display:flex;align-items:flex-end;gap:8px;height:80px">';
+  c.projects.slice().reverse().forEach(proj => {
+    const h = Math.max(20, (proj.fit / 100) * 80);
+    satHtml += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:100%;height:${h}px;border-radius:4px;background:${fitColor(proj.fit)};opacity:.8"></div><div style="font-size:9px;color:var(--w35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px">${proj.name.split('—')[0].trim()}</div></div>`;
+  });
+  satHtml += '</div></div>';
+  satHtml += `<div style="padding:22px;background:var(--grad-card);border:1px solid var(--w08);border-radius:var(--r-lg)"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:10px">Engagement Signals</div><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--w04)"><span style="color:var(--w35)">Satisfaction trend</span><span style="font-weight:500">${c.satisfaction >= 4 ? '↑ Positive' : c.satisfaction >= 3.5 ? '→ Stable' : '↓ Watch'}</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--w04)"><span style="color:var(--w35)">Career alignment</span><span style="font-weight:500">${c.careerAlign}</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0"><span style="color:var(--w35)">Career note</span><span style="font-weight:500;text-align:right;max-width:200px;font-size:11px;color:var(--w55)">${c.careerNote}</span></div></div></div></div>`;
+
+  // Allocation history (from projects)
+  satHtml += `<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:12px">Allocation Outcomes</div>`;
+  c.projects.forEach(proj => {
+    satHtml += `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--w02);border:1px solid var(--w08);border-radius:var(--r-md);margin-bottom:8px"><div><div style="font-size:13px;font-weight:600">${proj.name.split('—')[0].trim()}</div><div style="font-size:11px;color:var(--w35)">${proj.dates} · ${proj.role}</div></div><div style="display:flex;gap:16px;align-items:center"><div style="text-align:center"><div style="font-size:10px;color:var(--w35)">Fit</div><div style="font-size:14px;font-weight:700;color:${fitColor(proj.fit)}">${proj.fit}%</div></div><div style="text-align:center"><div style="font-size:10px;color:var(--w35)">Client</div><div style="font-size:14px;font-weight:700">${proj.clientRating}</div></div><div style="text-align:center"><div style="font-size:10px;color:var(--w35)">Sat</div><div style="font-size:14px;font-weight:700">${proj.satisfaction}</div></div></div></div>`;
+  });
+  satHtml += '</div>';
+  shell.innerHTML += satHtml;
+
+  s.appendChild(shell);
+
+  setTimeout(()=>{
+    document.getElementById('prBack').onclick = go('alloc-list');
+    // Tab switching
+    shell.querySelectorAll('.tab').forEach(tb => {
+      tb.onclick = () => {
+        shell.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+        tb.classList.add('on');
+        shell.querySelectorAll('.ptab').forEach(x=>x.classList.remove('on'));
+        document.getElementById('pt-'+tb.dataset.ptab)?.classList.add('on');
+      };
+    });
+  },0);
+
+  return s;
+}
+
+/* ==========================================================================
+   FIT BREAKDOWN MODAL
+   Opens from consultant cards in V-Allocate detail.
+   Data shape: { rec (from allocNeeds.recs), need, consultant }
+   ========================================================================== */
+function renderFitModal(data) {
+  const {rec, need, consultant: c} = data;
+  const fb = rec.fitBreakdown;
+  if (!fb) return document.createElement('div');
+
+  const bg = document.createElement('div');
+  bg.className = 'fm-bg on';
+  bg.onclick = (e) => { if (e.target === bg) { state.fitModal = null; render(); }};
+
+  let html = `<div class="fm"><div class="fm-hdr"><div class="fm-btn" id="fmBack">← Return to project</div><div class="fm-btn go" id="fmGo">Go to consultant →</div></div><div class="fm-body">`;
+
+  // Identity row
+  html += `<div class="fm-id"><div style="display:flex;align-items:center;gap:12px">${mkAvatar(c.initials,'av-accent')}<div><div style="font-size:18px;font-weight:700">${c.name}</div><div style="font-size:13px;color:var(--w55)">${c.seniority} · ${c.specialty}</div></div></div><div class="cc-fit ${fitClass(rec.fit)}" style="font-size:28px">${rec.fit}%</div></div>`;
+
+  // Role context
+  html += `<div class="fm-ctx"><strong>Role:</strong>&nbsp;${need.role}&nbsp;·&nbsp;${need.seniority}&nbsp;·&nbsp;${need.duration}</div>`;
+
+  // ── Dimensions ──
+  html += '<div class="fd">';
+
+  // 1. Skills
+  html += `<div class="fd-card"><div class="fd-hd"><div class="fd-t">Skills Match</div><div class="fd-s" style="color:${fitColor(fb.skills.score)}">${fb.skills.score}%</div></div><div class="fd-det">${fb.skills.matches.map(m=>`<div class="fm-row"><div class="fm-ml">${m.skill}</div><div class="fm-ms ${({strong:'fm-strong',ok:'fm-ok',weak:'fm-weak'})[m.status]}">${m.status}</div><div class="fm-ev">${m.evidence}</div></div>`).join('')}</div></div>`;
+
+  // 2. Persona
+  html += `<div class="fd-card"><div class="fd-hd"><div class="fd-t">Persona Match</div><div class="fd-s" style="color:${fitColor(fb.persona.score)}">${fb.persona.score}%</div></div><div class="fd-det">${fb.persona.matches.map(m=>`<div class="fm-row"><div class="fm-ml">${m.trait}</div><div class="fm-ms ${({strong:'fm-strong',ok:'fm-ok',weak:'fm-weak'})[m.status]}">${m.status}</div><div class="fm-ev">${m.evidence}</div></div>`).join('')}</div></div>`;
+
+  // 3. Availability
+  html += `<div class="fd-card"><div class="fd-hd"><div class="fd-t">Availability</div><div class="fd-s" style="color:${fitColor(fb.availability.score)}">${fb.availability.score}%</div></div><div class="fm-ag">${fb.availability.details.map(d=>`<div class="fm-ai"><div class="fm-al">${d.l}</div><div class="fm-av">${d.v}</div></div>`).join('')}</div></div>`;
+
+  // 4. Experience
+  html += `<div class="fd-card"><div class="fd-hd"><div class="fd-t">Experience & Seniority</div><div class="fd-s" style="color:${fitColor(fb.experience.score)}">${fb.experience.score}%</div></div><div class="fd-det">${fb.experience.matches.map(m=>`<div class="fm-row"><div class="fm-ml">${m.trait}</div><div class="fm-ms ${({strong:'fm-strong',ok:'fm-ok',weak:'fm-weak'})[m.status]}">${m.status}</div><div class="fm-ev">${m.evidence}</div></div>`).join('')}</div></div>`;
+
+  // 5. Semantic
+  html += `<div class="fd-card"><div class="fd-hd"><div class="fd-t">Semantic & Contextual</div><div class="fd-s" style="color:${fitColor(fb.semantic.score)}">${fb.semantic.score}%</div></div><div class="fd-det">${fb.semantic.matches.map(m=>`<div class="fm-row"><div class="fm-ml">${m.trait}</div><div class="fm-ms ${({strong:'fm-strong',ok:'fm-ok',weak:'fm-weak'})[m.status]}">${m.status}</div><div class="fm-ev">${m.evidence}</div></div>`).join('')}</div></div>`;
+
+  html += '</div>'; // end .fd
+
+  // V-Brain reasoning
+  if (rec.reasoning_full) {
+    html += `<div class="fm-reason"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--green-light);margin-bottom:8px">V-Brain Reasoning</div><div style="font-size:13px;line-height:1.6;color:var(--w70)">${rec.reasoning_full}</div></div>`;
+  }
+
+  // Considerations
+  if (rec.considerations && rec.considerations.length) {
+    html += `<div class="fm-cons"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--w35);margin-bottom:8px">Considerations</div>${rec.considerations.map(c=>`<div class="fm-ci">${ICO.warn} <span>${c}</span></div>`).join('')}</div>`;
+  }
+
+  html += '</div></div>'; // end .fm-body, .fm
+  bg.innerHTML = html;
+
+  setTimeout(()=>{
+    document.getElementById('fmBack').onclick = () => { state.fitModal = null; render(); };
+    document.getElementById('fmGo').onclick = go('profile',{consultant:rec.id});
+  },0);
+
+  return bg;
+}
+
+/* ==========================================================================
+   BOOTSTRAP
+   ========================================================================== */
+render();
+</script>
+</body>
+</html>
